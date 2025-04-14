@@ -1,0 +1,351 @@
+@import url('https://fonts.cdnfonts.com/css/reklame-script');
+
+
+body {
+    font-family: 'Roboto', sans-serif;
+    margin: 0;
+    padding: 0;
+    width: 100%; /* Empêche le débordement horizontal */
+    overflow-x: hidden; /* Supprime les barres de défilement horizontales si besoin */
+    background-color: #F6F4F0;
+}
+
+
+header {
+    background-color: #d32f2f;
+    color: white;
+    text-align: center;
+    padding: 1rem;
+}
+
+#carre-rouge  {
+    position: absolute;
+    top: -5px;
+    height: 55px;
+    width: 229px;
+    left: 120px;
+    border-radius: 5px;
+}
+
+
+.SPN {
+    position: absolute;
+    color: #F6F4F0;
+    z-index: 10;
+    font-family: 'Reklame Script Regular DEMO', sans-serif;
+    font-size: 35px;
+    top: -20px;
+    left: 130px;
+}
+
+
+.logo {
+    position: relative;
+    font-size: 25px;
+    right: 60px;
+    margin-top: -50x;
+    z-index: 10;
+}
+
+
+
+.nav-bar {
+    position: absolute;
+    left: 73%;
+    top: 0px;
+    display: flex;
+    gap: 0; /* Remove gap between items */
+    background-color: white;
+    height: 50px; /* Set fixed height */
+    width: 452px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    overflow: hidden; /* Ensure rounded corners also apply to children */
+}
+
+.nav-item {
+    flex: 1; /* Make items equal width */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: black;
+    font-family: Arial, sans-serif;
+    font-weight: bold;
+    text-transform: uppercase;
+    text-decoration: none;
+    background-color: transparent;
+    cursor: pointer;
+}
+
+.nav-item.active {
+    background-color: red;
+    color: white;
+}
+
+.nav-item:hover{
+    background-color: rgb(190, 177, 177);
+}
+
+
+.conteneur {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+    text-align: center;
+}
+
+h1 {
+    color: #d32f2f;
+    margin-bottom: 2rem;
+}
+
+.section-recherche {
+    margin-bottom: 2rem;
+}
+
+.section-recherche input[type="search"] {
+    padding: 0.5rem;
+    width: 300px;
+    margin-right: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+}
+
+.section-recherche button {
+    background-color: #d32f2f;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.section-recherche button:hover {
+    background-color: #b71c1c;
+}
+
+.game-card {
+    background: #fff;
+    border-left: 5px solid #b71c1c;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.game-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
+}
+
+.game-card h2 {
+    font-size: 1.75rem;
+    color: #343a40;
+    margin-bottom: 15px;
+    font-weight: 700;
+}
+
+.game-card p {
+    font-size: 1rem;
+    color: #6c757d;
+    margin-bottom: 8px;
+}
+
+.game-card p span {
+    font-weight: 600;
+    color: #495057;
+}
+
+.game-card-footer {
+    margin-top: 15px;
+    text-align: right;
+}
+
+.game-card-footer a {
+    font-size: 0.9rem;
+    color: #17a2b8;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.game-card-footer a:hover {
+    text-decoration: underline;
+    color: #691b0d;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px 0;
+    gap: 10px;
+    font-family: 'Arial', sans-serif;
+}
+
+.pagination-link {
+    padding: 10px 15px;
+    text-decoration: none;
+    font-size: 14px;
+    color: #333;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.pagination-link:hover {
+    background-color: #ff0000;
+    color: white;
+}
+
+.pagination-link.active {
+    background-color: #ff0000;
+    color: white;
+    border-color: #ff0000;
+}
+
+footer {
+    background-color: #F6F4F0;
+    color: #333;
+    text-align: center;
+    padding: 2rem 0;
+    margin-top: 2rem;
+}
+
+.fin-page {
+    display: flex;
+    justify-content: space-around; /* Assure un alignement horizontal des sections */
+    max-width: 1200px;
+    margin: 0 auto; /* Centrer le conteneur global */
+    text-align: center;
+}
+
+.fin-contact, .fin-navigation, .fin-retrouvez {
+    flex: 1; /* Assure que chaque section occupe le mÃªme espace */
+    padding: 0 1rem;
+}
+
+.fin-contact h3, .fin-navigation h3, .fin-retrouvez h3 {
+    font-size: 20px;
+    font-family: "Rethink Sans", serif;
+    margin-bottom: 1rem;
+}
+
+.fin-contact p, .fin-navigation p, .fin-retrouvez p {
+    color: grey;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.fin-retrouvez a {
+    text-decoration: none;
+    color: grey;
+}
+
+.fin-retrouvez a:hover {
+    text-decoration: underline;
+}
+
+
+
+.jeux_conteneur {
+    max-width: 900px;
+    margin: 50px auto;
+    padding: 20px;
+    background-color: #fff; /* Fond blanc */
+    border-radius: 15px; /* Coins arrondis */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05); /* Ombre légère pour un effet de profondeur */
+    font-family: 'Roboto', sans-serif;
+    color: #333; /* Texte gris foncé */
+    line-height: 1.6;
+    transition: all 0.3s ease;
+}
+
+
+.jeux_conteneur h1 {
+    font-size: 2.5em;
+    font-weight: 600;
+    color: #e53935;     
+    text-align: center;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+}
+
+
+.jeux_conteneur h1:hover {
+    color: #d32f2f; /* Changement de couleur au survol */
+    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.1); /* Ombre discrète */
+}
+
+.jeux_conteneur p {
+    font-size: 1.2em;
+    margin-bottom: 15px;
+    color: #555; /* Gris légèrement plus clair que le texte principal */
+    transition: color 0.3s ease, transform 0.3s ease;
+}
+
+
+.jeux_conteneur p:hover {
+    color: #e53935; /* Changement de couleur au survol */
+    transform: translateX(5px); /* Légère animation */
+}
+
+
+.jeux_conteneur strong {
+    font-weight: 700;
+    color: #d32f2f; /* Rouge accent sur les éléments importants */
+}
+
+
+.jeux_conteneur p:nth-child(even) {
+    background-color: rgba(139, 23, 21, 0.1); /* Fond rouge pâle */
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+
+.jeux_conteneur p a {
+    color: #e53935;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s ease, transform 0.3s ease;
+}
+
+
+.jeux_conteneur p a:hover {
+    color: #d32f2f;
+    transform: translateY(-3px); /* Effet de déplacement */
+}
+
+
+.jeux_conteneur:hover {
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1); /* Ombre plus marquée au survol */
+    transform: scale(1.01); /* Légère agrandissement pour effet interactif */
+}
+
+
+.jeux_conteneur p:last-child {
+    background-color: rgba(229, 57, 53, 0.05); /* Fond plus léger */
+    padding: 20px;
+    border-radius: 12px;
+}
+
+
+.bouton_emprunt {
+    width: 100%; 
+    height: 50px; 
+    background-color: red; 
+    border: none;
+    border-radius: 60px; 
+    color: white; 
+    font-size: 16px; 
+    text-align: center; 
+    cursor: pointer; 
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2); 
+}
+
+.bouton_emprunt:hover{
+    background-color: #c02b11;
+}
