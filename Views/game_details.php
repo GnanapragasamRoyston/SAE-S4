@@ -164,6 +164,7 @@ $conn->close();
             <img src="<?php echo htmlspecialchars($imageUrl); ?>" alt="Image du jeu <?php echo htmlspecialchars($game['titre']); ?>" style="max-height: 300px; border: 3px solid #333; border-radius: 8px;">
         </div>
         <?php endif; ?>
+        <br>
         <p><strong>Auteur :</strong> 
         <?php $auteur = htmlspecialchars($game['auteur_nom'] ?? 'Inconnu'); 
         echo rtrim($auteur, ' /'); // Supprime le '/' et les espaces en fin de chaîne
