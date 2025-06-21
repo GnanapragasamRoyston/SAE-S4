@@ -19,6 +19,35 @@ if (!isset($_SESSION['user_id'])) {
 
 $id_emprunteur = $_SESSION['user_id']; // Récupérer l'ID de l'emprunteur
 
+// Récupérer le rôle de l'utilisateur depuis la base de données
+$sql_role = "SELECT `role_nom` FROM `role` r WHERE r.role_id = ?";
+$stmt_role = $conn->prepare($sql_role);
+$stmt_role->bind_param("i", $id_emprunteur);
+$stmt_role->execute();
+$result_role = $stmt_role->get_result();
+$user = $result_role->fetch_assoc();
+
+if ($user && isset($user['role_nom'])) {
+    $_SESSION['role_nom'] = $user['role_nom']; // Stocker le rôle dans la session
+} else {
+    $_SESSION['role_nom'] = 'lecteur'; // Valeur par défaut si aucun rôle n'est trouvé
+}
+
+// Définir l'URL du tableau de bord en fonction du rôle
+switch ($_SESSION['role_nom']) {
+    case 'lecteur':
+        $compte_url = '../Views/dashboard_lecteur.php';
+        break;
+    case 'gestionnaire':
+        $compte_url = '../Views/dashboard_gestionnaire.php';
+        break;
+    case 'admin':
+        $compte_url = '../Views/dashboard_admin.php';
+        break;
+    default:
+        $compte_url = '../Views/dashboard_lecteur.php'; // URL par défaut
+}
+
 $jeu_id = isset($_GET['jeu_id']) ? (int)$_GET['jeu_id'] : 0;
 
 // Récupérer les informations du jeu
@@ -147,7 +176,7 @@ $conn->close();
     <nav class="nav-bar">
     <a href="../Views/accueil.php" class="nav-item">Accueil</a>
     <a href="../Views/search_games.php" class="nav-item active">Jeux</a>
-    <a href="../Views/dashboard_lecteur.php" class="nav-item">Compte</a>
+    <a href="<?php echo $compte_url; ?>" class="nav-item">Compte</a> 
     </nav>
 
 
