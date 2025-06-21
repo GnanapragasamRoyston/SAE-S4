@@ -349,3 +349,61 @@ footer {
 .bouton_emprunt:hover{
     background-color: #c02b11;
 }
+
+/* ===== Recherche Avancée ===== */
+
+.section-recherche {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 30px 40px; /* espace entre blocs */
+    padding: 30px;
+    margin-top: 100px;
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.section-recherche div {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; /* pour aligner label + input à gauche */
+    min-width: 220px;
+}
+
+.section-recherche label {
+    margin-bottom: 6px;
+    font-weight: bold;
+    font-size: 14px;
+    color: #333;
+}
+
+.section-recherche input[type="search"],
+.section-recherche input[type="number"],
+.section-recherche select {
+    padding: 10px;
+    font-size: 14px;
+    width: 100%;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-family: 'Roboto', sans-serif;
+    box-sizing: border-box;
+}
+
+.section-recherche button[type="submit"] {
+    align-self: flex-start; /* bouton aligné avec les inputs */
+    margin-top: 28px;        /* espace entre le champ précédent et le bouton */
+    background-color: #d32f2f;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-weight: bold;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.section-recherche button[type="submit"]:hover {
+    background-color: #b71c1c;
+}
+
