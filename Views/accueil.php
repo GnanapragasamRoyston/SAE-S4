@@ -1,5 +1,5 @@
 <?php
-require_once "../Models/Model.php"; 
+require_once "../Models/Model.php";  
 
 // Tester la connexion à la base de données
 try {
@@ -75,8 +75,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 ?>
 
-
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -86,28 +84,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Alkatra:wght@400..700&display=swap" rel="stylesheet">
     <title>Université Sorbonne Paris Nord</title>
-    <link rel="stylesheet" href="../Content/CSS/style.css">    
+    <link rel="stylesheet" href="../Content/CSS/style.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4Q6Gf2aSP4eDXB8Miphtr37CMZZQ5oXLH2yaXMJ2w8e2ZtHTl7GptT4jmndRuHDT" crossorigin="anonymous">    
 </head>
 <body>
     <div class='logo'>
-        <br>
         <a href="../Views/accueil.php"><img id='carre-rouge' src='../Content/IMG/carre-rouge.jpg' alt='rouge'></a>
-        <a href="../Views/accueil.php"><h1 class='SPN'>Sorbonne Paris Nord</h1></a>
+        <a href="../Views/accueil.php" style="text-decoration:none;"><h1 class='SPN pt-1'>Sorbonne Paris Nord</h1></a>
     </div>
 
     <nav class="nav-bar">
-    <a href="../Views/accueil.php" class="nav-item active">Accueil</a>
-    <a href="../Views/search_games.php" class="nav-item">Jeux</a>
-    <a href="../Views/connexion.php" class="nav-item">Compte</a>
+    <a href="accueil.php" class="nav-item active">Accueil</a>
+    <a href="search_games.php" class="nav-item">Jeux</a>
+    <a href="connexion.php" class="nav-item">Compte</a>
     </nav>
 
-
     <div class='Search'>
-    <form action='search_games.php' method='GET'>
-        <h1>Collection de<br> Sorbonne Paris Nord</h1>
-        <input class="recherche" type='text' name='req' placeholder='Vous cherchez un jeu ?' required>
-        <button class="recherche" type="submit" >Rechercher</button>
-    </form>
+        <form action='search_games.php' method='GET'>
+            <h1>Collection de<br> Sorbonne Paris Nord</h1>
+            <div class="search_games">
+                <input class="recherche form-control" type='text' name='req' placeholder='Vous cherchez un jeu ?' required>
+                <button class="recherche btn btn-danger" type="submit" >Rechercher</button>
+            </div>
+        </form>
     </div>
 
     <div class='Liste-jeux'>
@@ -115,67 +114,92 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <p class='p-jeux'>Découvrez nos jeux les plus empruntés du moment</p>
         <br>
         <div class='jeux'>
-            <div class='jeu'>
-                <img src='../Content/IMG/monopoly.jpg' alt='Monopoly'>
-                <p>Monopoly</p>
-                <p>Hasbro - Français</p>
+            <div class='jeux-img'>
+                <a href="game_details.php?jeu_id=571">
+                <div class="jeu">
+                    <img src='../Content/IMG/monopoly.jpg' class="jeu-img img-fluid" alt='Monopoly'>
+                </div>
+                <p class="p-jeux">Monopoly</p>
+                <p class="p-jeux">Hasbro - Français</p>
+                </a>
             </div>
-            <div class='jeu'>
-                <img src='../Content/IMG/uno.png' alt='UNO'>
-                <p>UNO</p>
-                <p>Mattel - Français</p>
+            <div class="jeux-img">
+                <a href="game_details.php?jeu_id=6926">
+                <div class='jeu'>
+                <img src='../Content/IMG/uno.png' class="jeu-img img-fluid" alt='UNO'>
+                </div>
+                <p class="p-jeux">UNO</p>
+                <p class="p-jeux">JBL - Français</p>
+                </a>
             </div>
-            <div class='jeu'>
-                <img src='../Content/IMG/puissance-4-classique-.jpg' alt='Puissance 4'>
-                <p>Puissance 4</p>
-                <p>Hasbro - Français</p>
+            <div class="jeux-img">
+                <a href="game_details.php?jeu_id=751">
+                <div class='jeu'>
+                    <img src='../Content/IMG/puissance-4-classique-.jpg' class="jeu-img img-fluid" alt='Puissance 4'>
+                </div>
+                <p class="p-jeux">Puissance 4 Evolution</p>
+                <p class="p-jeux">Hasbro - Français</p>
+                </a>
             </div>
-            <div class='jeu'>
-                <a href='../Views/search_games.php'><img src='../Content/IMG/yellow.jpeg' alt='Yellow'></a>
-                <p id='p2'>Découvrez plus de jeux</p>
-            </div>
-            <div class='fleche'>
-                <img src='../Content/IMG/fleche bas.png' alt='Fleche Bas'>
+            <div class="jeux-img">
+                <div class='jeu'>
+                    <a href='../Views/search_games.php'><img src='../Content/IMG/yellow.png' class="fleche"></a>
+                </div>
+                <p class="p-jeux mt-4">Découvrez plus de jeux</p>
             </div>
         </div>
     </div>
+    <div>
+        <div class="red">
+            <img src="../Content/IMG/chat.png" alt="image rouge" class="img-fluid">
+        </div>
+        <div class="blue">
+        </div>
 
-    <div class='red'>
-        <img src='../Content/IMG/chat.png'>
-    </div>
+        <form action="" method="post" class="card card-body form-contact">
+            <h1 class="text-center">Formulaire de contact</h1>
+            <img class="img-fluid img-contact d-block mx-auto" src="../Content/img/contact.png">
+            <p class="form-desc">Veuillez remplir le formulaire ci-dessous pour nous envoyer un message. Nous vous répondrons dans les plus brefs délais.</p>
+            <div class="mb-3 menu">
+                <input type="text" class="form-control" name="prenom" placeholder="Prénom" required>
+            </div>
 
-    <div class='blue'>
-    </div>
+            <div class="mb-3 menu">
+                <input type="text" class="form-control" name="nom" placeholder="Nom" required>
+            </div>
 
-    <div class='form-contact'>
-        <h2>Nous contacter</h2>
-        <p>Veuillez remplir le formulaire ci-dessous pour nous envoyer un message. Nous vous répondrons dans les plus brefs délais.</p>
+            <div class="mb-3 menu">
+                <input type="email" class="form-control" name="email" placeholder="Adresse email" required>
+            </div>
 
-        <form action="../Views/accueil.php" method="post">
-            <input type="text" name="prenom" placeholder="Prénom *" required>
-            <input type="text" name="nom" placeholder="Nom de famille *" required>
-            <input type="email" name="email" placeholder="E-mail *" required>
-            <textarea name="message" placeholder="Laissez-nous un message..." rows="6" required></textarea>
-            <button type="submit">Envoyer</button>
+            <div class="mb-3 menu">
+                <textarea class="form-control" name="message" placeholder="Votre message" rows="5" style="resize: none;" required></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-outline-info text-black w-50 mx-auto">Envoyer</button>
+
+            <br>
+
+            <?php if (!empty($errorMessage)): ?>
+                <div class="alert alert-danger text-center"><?= htmlspecialchars($errorMessage) ?></div>
+            <?php endif; ?>
             
             <?php if (!empty($successMessage)): ?>
-                <div style="color: green; font-weight: bold;">
-                    <?php echo $successMessage; ?>
-                </div>
-            <?php elseif (!empty($errorMessage)): ?>
-                <div style="color: red; font-weight: bold;">
-                    <?php echo "<br>" . $errorMessage; ?>
-                </div>
+                <div class="alert alert-success text-center"><?= htmlspecialchars($successMessage) ?></div>
             <?php endif; ?>
+            
+            <div id="messageErreur" class="alert alert-danger text-center mt-3" style="display: none;"></div>
         </form>
     </div>
 
-    <div class='fin-page'>
-    <a href="../Views/accueil.php"><img src='../Content/IMG/carre-rouge.jpg'></a>
-    <h1>Sorbonne Paris <br>Nord</h1>
-        <h2 id='t-h2'>Une expérience de jeu immersive</h2>
-        <br>
-        <hr class='ligne'>
+    <div class="fin">
+        <div class="rouge">
+            <h1 class="SPN2">Sorbonne Paris Nord</h1>
+        </div>
+        <h2 class="t-h2">Une expérience de jeu immersive</h2>
+        <hr>
+    </div>   
+    <div class="fin d-flex justify-content-center">
         <div class='fin-contact'>
             <h3>Contact</h3>
             <br>
@@ -187,9 +211,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <br>
             <p>Villetaneuse</p>
         </div>
-
         <div class='fin-navigation'>
-            <br>
             <h3>Navigation</h3>
             <br>
             <p>Jeux</p>
@@ -208,7 +230,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <br>
             <p>Mention légales</p>
         </div>
-
         <div class='fin-retrouvez'>
             <h3>Retrouvez-nous sur :</h3>
             <br>

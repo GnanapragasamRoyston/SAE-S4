@@ -58,7 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['jeu_id'])) {
 
     if ($result_verification->num_rows > 0) {
         // Le jeu a déjà été emprunté
-        $message = "<div class='message-error'>Vous avez déjà emprunté ce jeu.</div>";
+        $message = "<div class='message-error alert alert-secondary text-center'>Vous avez déjà emprunté ce jeu.</div>";
     } else {
         // Vérifier s'il reste des boîtes disponibles
         if ($n_boite > 0) {
@@ -79,12 +79,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['jeu_id'])) {
                 $stmt_update_boite->bind_param("i", $boite_id);
                 $stmt_update_boite->execute();
 
-                $message = "<div class='message-success'>Le jeu a été emprunté avec succès ! La date de retour est le $date_retour.</div>";
+                $message = "<div class='message-success alert alert-success text-center'>Le jeu a été emprunté avec succès ! La date de retour est <strong> le $date_retour.</strong></div>";
             } else {
-                $message = "<div class='message-error'>Erreur lors de l'emprunt du jeu.</div>";
+                $message = "<div class='message-error alert alert-danger text-center'>Erreur lors de l'emprunt du jeu.</div>";
             }
         } else {
-            $message = "<div class='message-error'>Aucune boîte disponible pour ce jeu.</div>";
+            $message = "<div class='message-error alert alert-info text-black text-center'>Aucune boîte disponible pour ce jeu.</div>";
         }
     }
 }
@@ -101,6 +101,7 @@ $conn->close();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Détails du Jeu</title>
     <link href="../Content/CSS/game_details.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4Q6Gf2aSP4eDXB8Miphtr37CMZZQ5oXLH2yaXMJ2w8e2ZtHTl7GptT4jmndRuHDT" crossorigin="anonymous">    
 </head>
 <body>
     <div class='logo'>
