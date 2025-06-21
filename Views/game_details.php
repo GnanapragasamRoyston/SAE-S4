@@ -39,6 +39,51 @@ $stmt->execute();
 $result = $stmt->get_result();
 
 $game = $result->fetch_assoc();
+if ($game) {
+    $imageUrl = getBoardGameImage($game['titre']);
+    $gameName = $game['titre'];
+} else {
+    $imageUrl = null;
+    $gameName = "Jeu non trouvé";
+}
+function getBoardGameImage($gameName) {
+    echo "<pre>Recherche de : $gameName</pre>";
+
+    $searchName = urlencode($gameName);
+    $searchUrl = "https://boardgamegeek.com/xmlapi2/search?query={$searchName}";
+
+    echo "<pre>URL de recherche : $searchUrl</pre>";
+
+    $searchXml = @simplexml_load_file($searchUrl);
+    if ($searchXml === false) {
+        echo "<pre>Erreur chargement XML (search)</pre>";
+        return null;
+    }
+
+    if (!isset($searchXml->item[0]['id'])) {
+        echo "<pre>Pas de résultat trouvé</pre>";
+        return null;
+    }
+
+    $gameId = (string)$searchXml->item[0]['id'];
+    echo "<pre>ID du jeu trouvé : $gameId</pre>";
+
+    $detailsUrl = "https://boardgamegeek.com/xmlapi2/thing?id={$gameId}&stats=1";
+    $detailsXml = @simplexml_load_file($detailsUrl);
+
+    if ($detailsXml === false || !isset($detailsXml->item->image)) {
+        echo "<pre>Erreur ou image non trouvée dans les détails</pre>";
+        return null;
+    }
+
+    echo "<pre>Image trouvée !</pre>";
+    return (string)$detailsXml->item->image;
+}
+
+
+$imageUrl = getBoardGameImage($game['titre']);
+
+$gameName=$game['titre'];
 
 // Variable pour afficher le message de succès ou d'erreur
 $message = '';
@@ -124,6 +169,12 @@ $conn->close();
         <?php if (!empty($message)) { echo $message; } ?>
 
         <h1><?php echo htmlspecialchars($game['titre']); ?></h1>
+        <?php if ($imageUrl): ?>
+        <div style="text-align:center;">
+            <pre><?php var_dump($imageUrl); ?></pre>
+            <img src="<?php echo htmlspecialchars($imageUrl); ?>" alt="Image du jeu <?php echo htmlspecialchars($game['titre']); ?>" style="max-height: 300px; border: 3px solid #333; border-radius: 8px;">
+        </div>
+        <?php endif; ?>
         <p><strong>Auteur :</strong> 
         <?php $auteur = htmlspecialchars($game['auteur_nom'] ?? 'Inconnu'); 
         echo rtrim($auteur, ' /'); // Supprime le '/' et les espaces en fin de chaîne
