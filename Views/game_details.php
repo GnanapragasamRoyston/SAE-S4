@@ -147,7 +147,7 @@ $conn->close();
     <nav class="nav-bar">
     <a href="../Views/accueil.php" class="nav-item">Accueil</a>
     <a href="../Views/search_games.php" class="nav-item active">Jeux</a>
-    <a href="../Views/connexion.php" class="nav-item">Compte</a>
+    <a href="../Views/dashboard_lecteur.php" class="nav-item">Compte</a>
     </nav>
 
 
@@ -161,7 +161,6 @@ $conn->close();
         <h1><?php echo htmlspecialchars($game['titre']); ?></h1>
         <?php if ($imageUrl): ?>
         <div style="text-align:center;">
-            <pre><?php var_dump($imageUrl); ?></pre>
             <img src="<?php echo htmlspecialchars($imageUrl); ?>" alt="Image du jeu <?php echo htmlspecialchars($game['titre']); ?>" style="max-height: 300px; border: 3px solid #333; border-radius: 8px;">
         </div>
         <?php endif; ?>
