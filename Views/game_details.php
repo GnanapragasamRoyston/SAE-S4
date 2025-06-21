@@ -29,9 +29,7 @@ $user = $result_role->fetch_assoc();
 
 if ($user && isset($user['role_nom'])) {
     $_SESSION['role_nom'] = $user['role_nom']; // Stocker le rôle dans la session
-} else {
-    $_SESSION['role_nom'] = 'lecteur'; // Valeur par défaut si aucun rôle n'est trouvé
-}
+} 
 
 // Définir l'URL du tableau de bord en fonction du rôle
 switch ($_SESSION['role_nom']) {
@@ -45,7 +43,7 @@ switch ($_SESSION['role_nom']) {
         $compte_url = '../Views/dashboard_admin.php';
         break;
     default:
-        $compte_url = '../Views/dashboard_lecteur.php'; // URL par défaut
+        $compte_url = '../Views/connexion.php'; // URL par défaut
 }
 
 $jeu_id = isset($_GET['jeu_id']) ? (int)$_GET['jeu_id'] : 0;
