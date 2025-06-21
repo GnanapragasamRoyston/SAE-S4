@@ -47,36 +47,26 @@ if ($game) {
     $gameName = "Jeu non trouvé";
 }
 function getBoardGameImage($gameName) {
-    echo "<pre>Recherche de : $gameName</pre>";
-
     $searchName = urlencode($gameName);
     $searchUrl = "https://boardgamegeek.com/xmlapi2/search?query={$searchName}";
 
-    echo "<pre>URL de recherche : $searchUrl</pre>";
+
 
     $searchXml = @simplexml_load_file($searchUrl);
     if ($searchXml === false) {
-        echo "<pre>Erreur chargement XML (search)</pre>";
         return null;
     }
 
     if (!isset($searchXml->item[0]['id'])) {
-        echo "<pre>Pas de résultat trouvé</pre>";
         return null;
     }
-
     $gameId = (string)$searchXml->item[0]['id'];
-    echo "<pre>ID du jeu trouvé : $gameId</pre>";
-
     $detailsUrl = "https://boardgamegeek.com/xmlapi2/thing?id={$gameId}&stats=1";
     $detailsXml = @simplexml_load_file($detailsUrl);
 
     if ($detailsXml === false || !isset($detailsXml->item->image)) {
-        echo "<pre>Erreur ou image non trouvée dans les détails</pre>";
         return null;
     }
-
-    echo "<pre>Image trouvée !</pre>";
     return (string)$detailsXml->item->image;
 }
 
