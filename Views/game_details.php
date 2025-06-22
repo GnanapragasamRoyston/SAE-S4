@@ -19,33 +19,44 @@ if (!isset($_SESSION['user_id'])) {
 
 $id_emprunteur = $_SESSION['user_id']; // Récupérer l'ID de l'emprunteur
 
-// Récupérer le rôle de l'utilisateur depuis la base de données
-$sql_role = "SELECT `role_nom` FROM `role` r WHERE r.role_id = ?";
+// Récupérer le role_id de l'utilisateur depuis la table Personne
+$sql_role = "SELECT role_id FROM `role` WHERE role_id = ?";
 $stmt_role = $conn->prepare($sql_role);
 $stmt_role->bind_param("i", $id_emprunteur);
 $stmt_role->execute();
 $result_role = $stmt_role->get_result();
 $user = $result_role->fetch_assoc();
 
-if ($user && isset($user['role_nom'])) {
-    $_SESSION['role_nom'] = $user['role_nom']; // Stocker le rôle dans la session
-} else {
-    $_SESSION['role_nom'] = 'lecteur'; // Valeur par défaut si aucun rôle n'est trouvé
+if ($user && isset($user['role_id'])) {
+    // Associer role_id au role_nom
+    if ($user['role_id'] == 1) {
+        $_SESSION['role_nom'] = 'lecteur';
+    } elseif ($user['role_id'] == 2) {
+        $_SESSION['role_nom'] = 'gestionnaire';
+    } elseif ($user['role_id'] == 3) {
+        $_SESSION['role_nom'] = 'admin';
+    } else {
+        // role_id invalide, considérer l'utilisateur comme non connecté
+        unset($_SESSION['user_id']);
+        unset($_SESSION['role_nom']);
+        header('Location: connexion.php');
+        exit;
+    }
 }
 
-// Définir l'URL du tableau de bord en fonction du rôle
-switch ($_SESSION['role_nom']) {
-    case 'lecteur':
-        $compte_url = '../Views/dashboard_lecteur.php';
-        break;
-    case 'gestionnaire':
-        $compte_url = '../Views/dashboard_gestionnaire.php';
-        break;
-    case 'admin':
-        $compte_url = '../Views/dashboard_admin.php';
-        break;
-    default:
-        $compte_url = '../Views/dashboard_lecteur.php'; // URL par défaut
+// Définir l'URL du tableau de bord en fonction du rôle avec des if
+if ($_SESSION['role_nom'] === 'lecteur') {
+    $compte_url = '../Views/dashboard_lecteur.php';
+} elseif ($_SESSION['role_nom'] === 'gestionnaire') {
+    $compte_url = '../Views/dashboard_gestionnaire.php';
+} elseif ($_SESSION['role_nom'] === 'admin') {
+    $compte_url = '../Views/dashboard_admin.php';
+} else {
+    // Rôle inattendu, rediriger vers la connexion
+    unset($_SESSION['user_id']);
+    unset($_SESSION['role_nom']);
+    header('Location: connexion.php');
+    exit;
 }
 
 $jeu_id = isset($_GET['jeu_id']) ? (int)$_GET['jeu_id'] : 0;
