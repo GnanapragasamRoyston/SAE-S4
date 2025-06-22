@@ -129,7 +129,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <img src='../Content/IMG/uno.png' class="jeu-img img-fluid" alt='UNO'>
                 </div>
                 <p class="p-jeux">UNO</p>
-                <p class="p-jeux">JBL - Français</p>
+                <p class="p-jeux">JLB - Français</p>
                 </a>
             </div>
             <div class="jeux-img">

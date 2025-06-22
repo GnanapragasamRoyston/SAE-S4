@@ -37,7 +37,6 @@ if ($user && isset($user['role_id'])) {
         $_SESSION['role_nom'] = 'admin';
     } else {
         // role_id invalide, considérer l'utilisateur comme non connecté
-        unset($_SESSION['user_id']);
         unset($_SESSION['role_nom']);
         header('Location: connexion.php');
         exit;
@@ -52,8 +51,6 @@ if ($_SESSION['role_nom'] === 'lecteur') {
 } elseif ($_SESSION['role_nom'] === 'admin') {
     $compte_url = '../Views/dashboard_admin.php';
 } else {
-    // Rôle inattendu, rediriger vers la connexion
-    unset($_SESSION['user_id']);
     unset($_SESSION['role_nom']);
     header('Location: connexion.php');
     exit;
