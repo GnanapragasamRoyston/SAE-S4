@@ -361,6 +361,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($jeux_trouves)): ?>
                     <td><?= htmlspecialchars($jeu['etat'] ?? '') ?></td>
                     <td><?= htmlspecialchars($jeu['collection_nom'] ?? '') ?></td>
                     <td><?= htmlspecialchars($jeu['localisation_nom'] ?? '') ?></td>
+                    <td>
+                        <form method="GET" action="../Views/modifier_jeu.php">
+                            <input type="hidden" name="jeu_id" value="<?= $jeu['jeu_id'] ?>">
+                            <button type="submit">Modifier</button>
+                        </form>
+                        <form method="POST" action="../Views/dashboard_gestionnaire.php" onsubmit="return confirm('Confirmer la suppression de ce jeu ?');">
+                            <input type="hidden" name="delete_game" value="1">
+                            <input type="hidden" name="jeu_id" value="<?= $jeu['jeu_id'] ?>">
+                            <button type="submit">Supprimer</button>
+                        </form>
+                    </td>
                 </tr>
             <?php endforeach; ?>
         </tbody>

@@ -140,7 +140,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_game'])) {
         $_SESSION['message'] = "Erreur lors de la suppression du jeu.";
     }
     $stmt_delete->close();
-    header("Location: dashboard_gestionnaire.php");
+    header("Location: dashboard_admin.php");
     exit;
 }
 
@@ -260,10 +260,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_game'])) {
                             <td><?= $jeu['date_retour'] ? htmlspecialchars($jeu['date_retour']) : "Non retourné" ?></td>
                             <td><?= htmlspecialchars($jeu['prenom']) . ' ' . htmlspecialchars($jeu['nom']) ?></td>
                             <td>
-                                <form method="POST" action="dashboard_gestionnaire.php">
-                                    <input type="hidden" name="pret_id" value="<?= $jeu['pret_id'] ?>">
-                                    <button type="submit">Rendu</button>
-                                </form>
+                            <form method="POST" action="dashboard_admin.php">
+                                <input type="hidden" name="pret_id" value="<?= $jeu['pret_id'] ?>">
+                                <button type="submit" name="action" value="rendu">Rendu</button>
+                            </form>
                             </td>
                         </tr>
                     <?php endforeach; ?>
