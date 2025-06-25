@@ -88,6 +88,7 @@ header {
 
 .nav-item:hover{
     background-color: rgb(190, 177, 177);
+    color: red;
 }
 
 

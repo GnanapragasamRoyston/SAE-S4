@@ -160,41 +160,44 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div>
         <div class="blue">
         </div>
+        <div class="formulaire">
+            <form action="" method="post" class="card card-body form-contact">
+                <h1 class="text-center">Formulaire de contact</h1>
+                <img class="img-fluid img-contact d-block mx-auto" src="../Content/img/contact.png">
+                <br>
+                <p class="form-desc">Veuillez remplir le formulaire ci-dessous pour nous envoyer un message. Nous vous répondrons dans les plus brefs délais.</p>
+                
+                <div id="messageErreur" class="alert alert-danger text-center mt-3" style="display: none;"></div>
+                <div class="mb-3 menu">
+                    <input type="text" class="form-control" name="prenom" placeholder="Prénom" required>
+                </div>
 
-        <form action="" method="post" class="card card-body form-contact">
-            <h1 class="text-center">Formulaire de contact</h1>
-            <img class="img-fluid img-contact d-block mx-auto" src="../Content/img/contact.png">
-            <p class="form-desc">Veuillez remplir le formulaire ci-dessous pour nous envoyer un message. Nous vous répondrons dans les plus brefs délais.</p>
-            <div class="mb-3 menu">
-                <input type="text" class="form-control" name="prenom" placeholder="Prénom" required>
-            </div>
+                <div class="mb-3 menu">
+                    <input type="text" class="form-control" name="nom" placeholder="Nom" required>
+                </div>
 
-            <div class="mb-3 menu">
-                <input type="text" class="form-control" name="nom" placeholder="Nom" required>
-            </div>
+                <div class="mb-3 menu">
+                    <input type="email" class="form-control" name="email" placeholder="Adresse email" required>
+                </div>
 
-            <div class="mb-3 menu">
-                <input type="email" class="form-control" name="email" placeholder="Adresse email" required>
-            </div>
+                <div class="mb-3 menu">
+                    <textarea class="form-control" name="message" placeholder="Votre message" rows="5" style="resize: none;" required></textarea>
+                </div>
 
-            <div class="mb-3 menu">
-                <textarea class="form-control" name="message" placeholder="Votre message" rows="5" style="resize: none;" required></textarea>
-            </div>
+                <button type="submit" class="btn btn-outline-info text-black w-50 mx-auto">Envoyer</button>
+                <br>
 
-            <button type="submit" class="btn btn-outline-info text-black w-50 mx-auto">Envoyer</button>
-
-            <br>
-
-            <?php if (!empty($errorMessage)): ?>
-                <div class="alert alert-danger text-center"><?= htmlspecialchars($errorMessage) ?></div>
-            <?php endif; ?>
-            
-            <?php if (!empty($successMessage)): ?>
-                <div class="alert alert-success text-center"><?= htmlspecialchars($successMessage) ?></div>
-            <?php endif; ?>
-            
-            <div id="messageErreur" class="alert alert-danger text-center mt-3" style="display: none;"></div>
-        </form>
+                <?php if (!empty($errorMessage)): ?>
+                    <div class="alert alert-danger text-center"><?= htmlspecialchars($errorMessage) ?></div>
+                <?php endif; ?>
+                
+                <?php if (!empty($successMessage)): ?>
+                    <div class="alert alert-success text-center"><?= htmlspecialchars($successMessage) ?></div>
+                <?php endif; ?>
+                
+                <div id="messageErreur" class="alert alert-danger text-center mt-3" style="display: none;"></div>
+            </form>
+        </div>
     </div>
 
     <div class="fin">
