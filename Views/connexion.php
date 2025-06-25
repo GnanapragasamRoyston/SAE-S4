@@ -21,17 +21,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($user->login($email, $password)) {
         $role = $_SESSION['role'];
-        if ($role === 'Lecteur') {
-            header("Location: dashboard_lecteur.php");
-            exit;
-        } elseif ($role === 'Gestionnaire') {
-            header("Location: dashboard_gestionnaire.php");
-            exit;
-        } elseif ($role === 'Admin') {
-            header("Location: dashboard_admin.php");
+        // Vérifier si un paramètre 'redirect' est présent dans l'URL
+        if (isset($_GET['redirect'])) {
+            $redirect_url = urldecode($_GET['redirect']);
+            writeLog("Redirection après connexion vers : $redirect_url");
+            header("Location: $redirect_url");
             exit;
         } else {
-            $message = "<p style='color:red;'>RÃ´le inconnu.</p>";
+            // Redirection par défaut selon le rôle
+            if ($role === 'Lecteur') {
+                header("Location: dashboard_lecteur.php");
+                exit;
+            } elseif ($role === 'Gestionnaire') {
+                header("Location: dashboard_gestionnaire.php");
+                exit;
+            } elseif ($role === 'Admin') {
+                header("Location: dashboard_admin.php");
+                exit;
+            } else {
+                $message = "<p style='color:red;'>Rôle inconnu.</p>";
+            }
         }
     } else {
         $message = "<p style='color:red;'>Identifiants incorrects.</p>";
