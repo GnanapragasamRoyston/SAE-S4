@@ -11,9 +11,33 @@ if ($conn->connect_error) {
     die("Connexion échouée : " . $conn->connect_error);
 }
 
+// Fonction pour récupérer une image via l'API BoardGameGeek
+function getBoardGameImage($gameName) {
+    $searchName = urlencode($gameName);
+    $searchUrl = "https://boardgamegeek.com/xmlapi2/search?query={$searchName}";
+
+    $searchXml = @simplexml_load_file($searchUrl);
+    if ($searchXml === false) {
+        return null;
+    }
+
+    if (!isset($searchXml->item[0]['id'])) {
+        return null;
+    }
+
+    $gameId = (string)$searchXml->item[0]['id'];
+    $detailsUrl = "https://boardgamegeek.com/xmlapi2/thing?id={$gameId}&stats=1";
+    $detailsXml = @simplexml_load_file($detailsUrl);
+
+    if ($detailsXml === false || !isset($detailsXml->item->image)) {
+        return null;
+    }
+
+    return (string)$detailsXml->item->image;
+}
+
 $jeu_id = isset($_GET['jeu_id']) ? (int)$_GET['jeu_id'] : 0;
 
-// Récupérer les informations du jeu
 $sql = "SELECT j.jeu_id, j.titre, j.version, j.nombre_de_joueurs, a.nom AS auteur_nom, e.nom AS editeur_nom, j.date_parution_debut, j.date_parution_fin, j.information_date, j.age_indique, j.mots_cles, m.nom AS mecanisme_nom, b.boite_id, b.n_boite FROM Jeux j
 LEFT JOIN JeuAuteur ja ON j.jeu_id = ja.jeu_id
 LEFT JOIN Auteur a ON ja.auteur_id = a.auteur_id
@@ -29,28 +53,27 @@ $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $jeu_id);
 $stmt->execute();
 $result = $stmt->get_result();
-
 $game = $result->fetch_assoc();
 
-// Variable pour afficher le message de succès ou d'erreur
+// Récupérer l'image via l'API
+$imageUrl = getBoardGameImage($game['titre']);
+
+// Variable pour message
 $message = '';
 
-// Gestion de l'emprunt
+// Emprunt
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['jeu_id'])) {
-    // Vérifier si l'utilisateur est connecté avant de permettre l'emprunt
     if (!isset($_SESSION['user_id'])) {
-        // Conserver l'URL actuelle pour la redirection après connexion
         $redirect_url = urlencode($_SERVER['REQUEST_URI']);
         header("Location: connexion.php?redirect=$redirect_url");
         exit;
     }
 
-    $id_emprunteur = $_SESSION['user_id']; // Récupérer l'ID de l'emprunteur
-    $jeu_id = (int)$_POST['jeu_id']; // Récupérer l'ID du jeu à emprunter
-    $boite_id = $game['boite_id']; // Récupérer l'ID de la boîte associée au jeu
-    $n_boite = $game['n_boite']; // Nombre de boîtes disponibles pour ce jeu
+    $id_emprunteur = $_SESSION['user_id'];
+    $jeu_id = (int)$_POST['jeu_id'];
+    $boite_id = $game['boite_id'];
+    $n_boite = $game['n_boite'];
 
-    // Vérifier si le jeu a déjà été emprunté par l'utilisateur
     $sql_verification = "SELECT * FROM Pret WHERE personne_id = ? AND boite_id = ?";
     $stmt_verification = $conn->prepare($sql_verification);
     $stmt_verification->bind_param("ii", $id_emprunteur, $boite_id);
@@ -58,132 +81,98 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['jeu_id'])) {
     $result_verification = $stmt_verification->get_result();
 
     if ($result_verification->num_rows > 0) {
-        $message = "<div class='message-error'>Vous avez déjà emprunté ce jeu.</div>";
+        $message = "<div class='message-error alert alert-danger text-center'>Vous avez déjà emprunté ce jeu.</div>";
     } else {
         if ($n_boite > 0) {
-            $date_pret = date('Y/m/d');
             $date_retour = date('Y/m/d', strtotime('+14 days'));
-
             $sql_emprunt = "INSERT INTO Pret (personne_id, boite_id, date_pret, date_retour) VALUES (?, ?, NOW(), ?)";
             $stmt_emprunt = $conn->prepare($sql_emprunt);
             $stmt_emprunt->bind_param("iis", $id_emprunteur, $boite_id, $date_retour);
-            
+
             if ($stmt_emprunt->execute()) {
                 $sql_update_boite = "UPDATE Boite SET n_boite = n_boite - 1 WHERE boite_id = ?";
                 $stmt_update_boite = $conn->prepare($sql_update_boite);
                 $stmt_update_boite->bind_param("i", $boite_id);
                 $stmt_update_boite->execute();
 
-                $message = "<div class='message-success'>Le jeu a été emprunté avec succès ! La date de retour est le $date_retour.</div>";
+                $message = "<div class='message-success alert alert-success text-center'>Le jeu a été emprunté avec succès ! La date de retour est le <strong> $date_retour.</strong></div>";
             } else {
-                $message = "<div class='message-error'>Erreur lors de l'emprunt du jeu.</div>";
+                $message = "<div class='message-error alert alert-danger text-center'>Erreur lors de l'emprunt du jeu.</div>";
             }
         } else {
-            $message = "<div class='message-error'>Aucune boîte disponible pour ce jeu.</div>";
+            $message = "<div class='message-error alert alert-danger text-center'>Aucune boîte disponible pour ce jeu.</div>";
         }
     }
 }
 
-function getBoardGameImage($gameName) {
-    $searchName = urlencode($gameName);
-    $searchUrl = "https://boardgamegeek.com/xmlapi2/search?query={$searchName}";
-
-
-
-    $searchXml = @simplexml_load_file($searchUrl);
-    if ($searchXml === false) {
-        return null;
-    }
-
-    if (!isset($searchXml->item[0]['id'])) {
-        return null;
-    }
-    $gameId = (string)$searchXml->item[0]['id'];
-    $detailsUrl = "https://boardgamegeek.com/xmlapi2/thing?id={$gameId}&stats=1";
-    $detailsXml = @simplexml_load_file($detailsUrl);
-
-    if ($detailsXml === false || !isset($detailsXml->item->image)) {
-        return null;
-    }
-    return (string)$detailsXml->item->image;
-}
-$imageUrl = getBoardGameImage($game['titre']);
-
-$gameName=$game['titre'];
 $conn->close();
 ?>
 
-<!-- Le reste du code HTML reste inchangé -->
+<!-- HTML -->
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Détails du Jeu</title>
     <link href="../Content/CSS/game_details.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4Q6Gf2aSP4eDXB8Miphtr37CMZZQ5oXLH2yaXMJ2w8e2ZtHTl7GptT4jmndRuHDT" crossorigin="anonymous">    
 </head>
 <body>
     <div class='logo'>
         <a href="../Views/accueil.php"><img id='carre-rouge' src='../Content/IMG/carre-rouge.jpg' alt='rouge'></a>
-        <a href="../Views/accueil.php"><h1 class='SPN'>Sorbonne Paris Nord</h1></a>
+        <a href="../Views/accueil.php" style="text-decoration:none;"><h1 class='SPN pt-1'>Sorbonne Paris Nord</h1></a>
     </div>
 
     <nav class="nav-bar">
-    <a href="../Views/accueil.php" class="nav-item">Accueil</a>
-    <a href="../Views/search_games.php" class="nav-item active">Jeux</a>
-    <?php
-    // Vérifier si l'utilisateur est connecté
-    if (isset($_SESSION['user_id']) && isset($_SESSION['role'])) {
-        $role = $_SESSION['role'];
-        if ($role === 'Lecteur') {
-            echo '<a href="../Views/dashboard_lecteur.php" class="nav-item">Compte</a>';
-        } elseif ($role === 'Gestionnaire') {
-            echo '<a href="../Views/dashboard_gestionnaire.php" class="nav-item">Compte</a>';
-        } elseif ($role === 'Admin') {
-            echo '<a href="../Views/dashboard_admin.php" class="nav-item">Compte</a>';
+        <a href="../Views/accueil.php" class="nav-item">Accueil</a>
+        <a href="../Views/search_games.php" class="nav-item active">Jeux</a>
+        <?php
+        if (isset($_SESSION['user_id']) && isset($_SESSION['role'])) {
+            $role = $_SESSION['role'];
+            if ($role === 'Lecteur') {
+                echo '<a href="../Views/dashboard_lecteur.php" class="nav-item acitve">Compte</a>';
+            } elseif ($role === 'Gestionnaire') {
+                echo '<a href="../Views/dashboard_gestionnaire.php" class="nav-item active">Compte</a>';
+            } elseif ($role === 'Admin') {
+                echo '<a href="../Views/dashboard_admin.php" class="nav-item active">Compte</a>';
+            }
+        } else {
+            echo '<a href="../Views/connexion.php" class="nav-item">Compte</a>';
         }
-    } else {
-        // Utilisateur non connecté : lien vers connexion.php
-        echo '<a href="../Views/connexion.php" class="nav-item active">Compte</a>';
-    }
-    ?>
+        ?>
     </nav>
 
-    <br>
-    <br>
+    <br><br>
 
     <div class="jeux_conteneur">
-        <?php if (!empty($message)) { echo $message; } ?>
+        <?php if (!empty($message)) echo $message; ?>
 
         <h1><?php echo htmlspecialchars($game['titre']); ?></h1>
+
         <?php if ($imageUrl): ?>
         <div style="text-align:center;">
             <img src="<?php echo htmlspecialchars($imageUrl); ?>" alt="Image du jeu <?php echo htmlspecialchars($game['titre']); ?>" style="max-height: 300px; border: 3px solid #333; border-radius: 8px;">
         </div>
         <?php endif; ?>
+
         <br>
-        <p><strong>Auteur :</strong> 
-        <?php $auteur = htmlspecialchars($game['auteur_nom'] ?? 'Inconnu'); 
-        echo rtrim($auteur, ' /'); ?>
-        </p>
-        <p><strong>Éditeur :</strong> 
-        <?php 
-        $editeur = htmlspecialchars($game['editeur_nom'] ?? 'Non spécifié');
-        echo rtrim($editeur, ' /'); ?>
-        </p>
+        <br>
+
+        <p><strong>Auteur :</strong> <?php echo htmlspecialchars($game['auteur_nom'] ?? 'Inconnu'); ?></p>
+        <p><strong>Éditeur :</strong> <?php echo htmlspecialchars($game['editeur_nom'] ?? 'Non spécifié'); ?></p>
         <p><strong>Version :</strong> <?php echo htmlspecialchars($game['version']); ?></p>
         <p><strong>Nombre de joueurs :</strong> <?php echo htmlspecialchars($game['nombre_de_joueurs']); ?></p>
-        <p><strong>Date de parution :</strong> 
-        <?php 
-        if ($game['date_parution_debut'] !== '0000') {
-            echo htmlspecialchars($game['date_parution_debut']);
-        } else {
-            echo "Inconnu";
-        }
-        if ($game['date_parution_fin'] !== '0000') {
-            echo ' - ' . htmlspecialchars($game['date_parution_fin']);
-        }
-        ?>
+        <p><strong>Date de parution :</strong>
+            <?php
+            if ($game['date_parution_debut'] !== '0000') {
+                echo htmlspecialchars($game['date_parution_debut']);
+            } else {
+                echo "Inconnue";
+            }
+            if ($game['date_parution_fin'] !== '0000') {
+                echo ' - ' . htmlspecialchars($game['date_parution_fin']);
+            }
+            ?>
         </p>
         <p><strong>Informations supplémentaires :</strong> <?php echo htmlspecialchars($game['information_date']); ?></p>
         <p><strong>Âge indiqué :</strong> <?php echo htmlspecialchars($game['age_indique']); ?></p>
@@ -195,7 +184,6 @@ $conn->close();
             <button type="submit" class="bouton_emprunt">Emprunter ce jeu</button>
         </form>
     </div>
-
     <footer>
         <div class="fin-page">
             <div class="fin-contact">
