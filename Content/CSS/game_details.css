@@ -19,7 +19,7 @@ header {
 }
 
 #carre-rouge  {
-    position: absolute;
+    position: relative;
     top: -5px;
     height: 55px;
     width: 229px;
@@ -29,12 +29,12 @@ header {
 
 
 .SPN {
-    position: absolute;
+    position: relative;
     color: #F6F4F0;
     z-index: 10;
     font-family: 'Reklame Script Regular DEMO', sans-serif;
     font-size: 35px;
-    top: -20px;
+    bottom: 50px;
     left: 130px;
 }
 

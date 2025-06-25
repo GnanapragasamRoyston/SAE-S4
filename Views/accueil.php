@@ -1,21 +1,16 @@
 <?php
+session_start(); // Ajouter session_start() pour accéder aux variables de session
 require_once "../Models/Model.php";  
 
 // Tester la connexion à la base de données
 try {
     $db = Model::getModel()->getConnection();
     $query = $db->query("SELECT 1");
-
-    // Si la connexion est réussi afficher un message
-    echo "<script>console.log('Connexion réussie à la base de données.');</script>";  // Affiche dans la console du navigateur
+    echo "<script>console.log('Connexion réussie à la base de données.');</script>";
 } catch (PDOException $e) {
-    // Sinon afficher un message d'erreur
-    echo "<script>console.log('Erreur de connexion : " . $e->getMessage() . "');</script>";  // Affiche dans la console du navigateur
+    echo "<script>console.log('Erreur de connexion : " . addslashes($e->getMessage()) . "');</script>";
 }
 
-?>
-
-<?php
 require '../Controllers/PHPMailer-master/src/Exception.php';
 require '../Controllers/PHPMailer-master/src/PHPMailer.php';
 require '../Controllers/PHPMailer-master/src/SMTP.php';
@@ -26,35 +21,29 @@ use PHPMailer\PHPMailer\Exception;
 $successMessage = '';
 $errorMessage = '';
 
-// Vérifie si le formulaire a été soumis
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    
     $prenom = $_POST['prenom'] ?? '';
     $nom = $_POST['nom'] ?? '';
     $email = $_POST['email'] ?? '';
     $message = $_POST['message'] ?? '';
 
-  
     if (empty($prenom) || empty($nom) || empty($email) || empty($message)) {
         $errorMessage = "Erreur : Tous les champs sont obligatoires !";
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $errorMessage = "Erreur : L'adresse email n'est pas valide !";
     } else {
-        // Création de l'objet PHPMailer
         $mail = new PHPMailer(true);
         try {
-            // Configuration du serveur SMTP
             $mail->isSMTP();
-            $mail->Host = 'smtp.gmail.com';  
+            $mail->Host = 'smtp.gmail.com';
             $mail->SMTPAuth = true;
-            $mail->Username = 'uspnjeuxsociete@gmail.com'; 
-            $mail->Password = 'jfyuyfpmsfjdmogo';     
+            $mail->Username = 'uspnjeuxsociete@gmail.com';
+            $mail->Password = 'jfyuyfpmsfjdmogo';
             $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-            $mail->Port = 587;  // Port pour STARTTLS
+            $mail->Port = 587;
 
-            // Configuration de l'email
             $mail->setFrom('uspnjeuxsociete@gmail.com', 'Formulaire Contact');
-            $mail->addAddress('uspnjeuxsociete@gmail.com');  
+            $mail->addAddress('uspnjeuxsociete@gmail.com');
             $mail->addReplyTo($email, $prenom . ' ' . $nom);
 
             $mail->isHTML(true);
@@ -94,17 +83,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 
     <nav class="nav-bar">
-    <a href="accueil.php" class="nav-item active">Accueil</a>
-    <a href="search_games.php" class="nav-item">Jeux</a>
-    <a href="connexion.php" class="nav-item">Compte</a>
+        <a href="../Views/accueil.php" class="nav-item active">Accueil</a>
+        <a href="../Views/search_games.php" class="nav-item">Jeux</a>
+        <?php
+        if (isset($_SESSION['user_id']) && isset($_SESSION['role'])) {
+            $role = $_SESSION['role'];
+            if ($role === 'Lecteur') {
+                echo '<a href="../Views/dashboard_lecteur.php" class="nav-item">Compte</a>';
+            } elseif ($role === 'Gestionnaire') {
+                echo '<a href="../Views/dashboard_gestionnaire.php" class="nav-item">Compte</a>';
+            } elseif ($role === 'Admin') {
+                echo '<a href="../Views/dashboard_admin.php" class="nav-item">Compte</a>';
+            }
+        } else {
+            echo '<a href="../Views/connexion.php" class="nav-item">Compte</a>';
+        }
+        ?>
     </nav>
 
     <div class='Search'>
         <form action='search_games.php' method='GET'>
             <h1>Collection de<br> Sorbonne Paris Nord</h1>
             <div class="search_games">
-                <input class="recherche form-control" type='text' name='req' placeholder='Vous cherchez un jeu ?' required>
-                <button class="recherche btn btn-danger" type="submit" >Rechercher</button>
+                <input class="recherche form-control" type='text' name='query' placeholder='Vous cherchez un jeu ?' required>
+                <button class="recherche btn btn-danger" type="submit">Rechercher</button>
             </div>
         </form>
     </div>
@@ -116,39 +118,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class='jeux'>
             <div class='jeux-img'>
                 <a href="game_details.php?jeu_id=571">
-                <div class="jeu">
-                    <img src='../Content/IMG/monopoly.jpg' class="jeu-img img-fluid" alt='Monopoly'>
-                </div>
-                <p class="p-jeux">Monopoly</p>
-                <p class="p-jeux">Hasbro - Français</p>
+                    <div class="jeu">
+                        <img src='../Content/IMG/monopoly.jpg' class="jeu-img img-fluid" alt='Monopoly'>
+                    </div>
+                    <p class="p-jeux">Monopoly</p>
+                    <p class="p-jeux">Hasbro - Français</p>
                 </a>
             </div>
             <div class="jeux-img">
                 <a href="game_details.php?jeu_id=6926">
-                <div class='jeu'>
-                <img src='../Content/IMG/uno.png' class="jeu-img img-fluid" alt='UNO'>
-                </div>
-                <p class="p-jeux">UNO</p>
-                <p class="p-jeux">JLB - Français</p>
+                    <div class='jeu'>
+                        <img src='../Content/IMG/uno.png' class="jeu-img img-fluid" alt='UNO'>
+                    </div>
+                    <p class="p-jeux">UNO</p>
+                    <p class="p-jeux">JLB - Français</p>
                 </a>
             </div>
             <div class="jeux-img">
                 <a href="game_details.php?jeu_id=751">
-                <div class='jeu'>
-                    <img src='../Content/IMG/puissance-4-classique-.jpg' class="jeu-img img-fluid" alt='Puissance 4'>
-                </div>
-                <p class="p-jeux">Puissance 4 Evolution</p>
-                <p class="p-jeux">Hasbro - Français</p>
+                    <div class='jeu'>
+                        <img src='../Content/IMG/puissance-4-classique-.jpg' class="jeu-img img-fluid" alt='Puissance 4'>
+                    </div>
+                    <p class="p-jeux">Puissance 4 Evolution</p>
+                    <p class="p-jeux">Hasbro - Français</p>
                 </a>
             </div>
             <div class="jeux-img">
-                <div class='jeu'>
-                    <a href='../Views/search_games.php'><img src='../Content/IMG/yellow.png' class="fleche"></a>
-                </div>
-                <p class="p-jeux mt-4">Découvrez plus de jeux</p>
+                <a href="../Views/search_games.php">
+                    <div class='jeu'>
+                        <img src='../Content/IMG/yellow.png' class="fleche">
+                    </div>
+                    <p class="p-jeux mt-4">Découvrez plus de jeux</p>
+                </a>
             </div>
         </div>
     </div>
+
     <div>
         <div class="red">
             <img src="../Content/IMG/chat.png" alt="image rouge" class="img-fluid">
@@ -201,39 +206,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>   
     <div class="fin d-flex justify-content-center">
         <div class='fin-contact'>
-            <h3>Contact</h3>
-            <br>
-            <p>sorbonne-paris-nord@iutv-paris13.fr</p>
-            <br>
-            <p>Tél : 01 49 40 30 00</p>
-            <br>
-            <p>99 Av.Jean Baptiste Clément, 93430</p>
-            <br>
-            <p>Villetaneuse</p>
+            <h3 class="text-center">Contact</h3>
+        
+            <p class="text-center">sorbonne-paris-nord@iutv-paris13.fr</p>
+        
+            <p class="text-center">Tél : 01 49 40 30 00</p>
+        
+            <p class="text-center">99 Av.Jean Baptiste Clément, 93430</p>
+        
+            <p class="text-center">Villetaneuse</p>
         </div>
         <div class='fin-navigation'>
-            <h3>Navigation</h3>
-            <br>
-            <p>Jeux</p>
-            <br>
-            <p>Carrières</p>
-            <br>
-            <p>A propos</p>
-            <br>
-            <p>Contact</p>
-            <br>
-            <p>Politique de confidentialité</p>
-            <br>
-            <p>Termes et conditions</p>
-            <br>
-            <p>Politique de cookies</p>
-            <br>
-            <p>Mention légales</p>
+            <h3 class="text-center">Navigation</h3>
+            
+            <p class="text-center">Jeux</p>
+            
+            <p class="text-center">Carrières</p>
+            
+            <p class="text-center">A propos</p>
+            
+            <p class="text-center">Contact</p>
+            
+            <p class="text-center">Politique de confidentialité</p>
+            
+            <p class="text-center">Mention légales</p>
         </div>
         <div class='fin-retrouvez'>
             <h3>Retrouvez-nous sur :</h3>
-            <br>
-            <p><a id='lien' href='https://www.univ-spn.fr/' style='text-decoration: none;'>https://www.univ-spn.fr/</a></p>
+            
+            <p class="text-center"><a id='lien' href='https://www.univ-spn.fr/' style='text-decoration: none;'>https://www.univ-spn.fr/</a></p>
         </div>
     </div>
 </body>

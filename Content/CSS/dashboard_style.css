@@ -2,40 +2,36 @@
 @import url('https://fonts.googleapis.com/css2?family=Alkatra:wght@400..700&family=Suez+One&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Alkatra:wght@400..700&family=Rethink+Sans:ital,wght@0,400..800;1,400..800&family=Suez+One&display=swap');
 
-body {
-    font-family: 'Arial', sans-serif;
-    background-color: #F6F4F0;
-    color: #333333;
-    margin: 0;
-    padding: 0;
+body, html {
+  margin: 0;
+  padding: 0;
+  font-family: 'Roboto', sans-serif;
+  overflow-x: hidden;
+  background-color: #F6F4F0;
 }
 
+
 #carre-rouge  {
-    position: absolute;
-    top: -25px;
-    height: 55px;
+    position: relative;
+    display: flex;
+    justify-content: start;
+    bottom: 20px;
+    left: 60px;
+    height: 50px;
     width: 229px;
-    left: 120px;
     border-radius: 5px;
 }
 
 
 .SPN {
-    position: absolute;
-    color: #F6F4F0;
-    z-index: 10;
+    position: relative;
+    display: flex;
+    justify-content: start;
+    color: white;
     font-family: 'Reklame Script Regular DEMO', sans-serif;
     font-size: 35px;
-    top: -40px;
-    left: 130px;
-}
-
-.logo {
-    position: relative;
-    font-size: 25px;
-    right: 60px;
-    margin-top: -50x;
-    z-index: 10;
+    left: 70px;
+    bottom: 87px;
 }
 
 

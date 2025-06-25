@@ -155,31 +155,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_game'])) {
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4Q6Gf2aSP4eDXB8Miphtr37CMZZQ5oXLH2yaXMJ2w8e2ZtHTl7GptT4jmndRuHDT" crossorigin="anonymous">    
     <link rel="stylesheet" href="../Content/CSS/dashboard_style.css">
 </head>
 <body>
 
     <div class='logo'>
-        <a href="../Views/accueil_admin.php"><img id='carre-rouge' src='../Content/IMG/carre-rouge.jpg' alt='rouge'></a>
-        <a href="../Views/accueil_admin.php"><h1 class='SPN'>Sorbonne Paris Nord</h1></a>
+        <a href="../Views/accueil.php"><img id='carre-rouge' src='../Content/IMG/carre-rouge.jpg' alt='rouge'></a>
+        <a href="../Views/accueil.php" style="text-decoration:none;"><h1 class='SPN pt-1'>Sorbonne Paris Nord</h1></a>
     </div>
 
     <nav class="nav-bar">
-    <a href="../Views/accueil_admin.php" class="nav-item">accueil</a>
-    <a href="../Views/search_games_admin.php" class="nav-item">Jeux</a>
-    <a href="../Views/dashboard_admin.php" class="nav-item active">Compte</a>
+        <a href="../Views/accueil.php" class="nav-item">Accueil</a>
+        <a href="../Views/search_games.php" class="nav-item">Jeux</a>
+        <?php
+        if (isset($_SESSION['user_id']) && isset($_SESSION['role'])) {
+            $role = $_SESSION['role'];
+            if ($role === 'Lecteur') {
+                echo '<a href="../Views/dashboard_lecteur.php" class="nav-item active">Compte</a>';
+            } elseif ($role === 'Gestionnaire') {
+                echo '<a href="../Views/dashboard_gestionnaire.php" class="nav-item active">Compte</a>';
+            } elseif ($role === 'Admin') {
+                echo '<a href="../Views/dashboard_admin.php" class="nav-item active">Compte</a>';
+            }
+        } else {
+            echo '<a href="../Views/connexion.php" class="nav-item active">Compte</a>';
+        }
+        ?>
     </nav>
 
     <br>
     <br>
 
     <div class="container">
-        <h1>Bienvenue sur votre tableau de bord, <?php echo htmlspecialchars($prenom) . " " . htmlspecialchars($nom); ?> !</h1>
+        <h1 class="text-center">Bienvenue sur votre tableau de bord, <?php echo htmlspecialchars($prenom) . " " . htmlspecialchars($nom); ?> !</h1>
         <br>
 
         <!-- Affichage des messages (si présents) -->
         <?php if (isset($_SESSION['message'])): ?>
-            <p class="maj_valide"><?= htmlspecialchars($_SESSION['message']); ?></p>
+            <p class="maj_valide alert alert-success text-center w-25 text-black mx-auto"><?= htmlspecialchars($_SESSION['message']); ?></p>
             <?php unset($_SESSION['message']); // Supprimer le message après l'affichage ?>
         <?php endif; ?>
 
@@ -260,10 +274,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_game'])) {
                             <td><?= $jeu['date_retour'] ? htmlspecialchars($jeu['date_retour']) : "Non retourné" ?></td>
                             <td><?= htmlspecialchars($jeu['prenom']) . ' ' . htmlspecialchars($jeu['nom']) ?></td>
                             <td>
-                                <form method="POST" action="dashboard_gestionnaire.php">
-                                    <input type="hidden" name="pret_id" value="<?= $jeu['pret_id'] ?>">
-                                    <button type="submit">Rendu</button>
-                                </form>
+                                <form method="POST" action="<?php
+                                    if (isset($_SESSION['user_id']) && isset($_SESSION['role'])) {
+                                        $role = $_SESSION['role'];
+                                        if ($role === 'Lecteur') {
+                                            echo '../Views/dashboard_lecteur.php';
+                                        } elseif ($role === 'Gestionnaire') {
+                                            echo '../Views/dashboard_gestionnaire.php';
+                                        } elseif ($role === 'Admin') {
+                                            echo '../Views/dashboard_admin.php';
+                                        } else {
+                                            // Rôle inconnu : rediriger vers connexion.php
+                                            echo '../Views/connexion.php';
+                                        }
+                                    } else {
+                                        // Utilisateur non connecté : rediriger vers connexion.php
+                                        echo '../Views/connexion.php';
+                                    }
+                                ?>">
+                                <form method="POST" action="dashboard_admin.php">
+                                <input type="hidden" name="pret_id" value="<?= $jeu['pret_id'] ?>">
+                                <button type="submit" name="action" value="rendu">Rendu</button>
+                            </form>
                             </td>
                         </tr>
                     <?php endforeach; ?>
@@ -281,7 +313,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_game'])) {
         <?php endif; ?>
         
         <br>
-        <a href='../Views/logout.php'>Déconnexion</a>
+        <a href='../Views/logout.php' class="btn btn-outline-danger d-flex justify-content-center">Déconnexion</a>
     </div>
 </body>
 </html>
