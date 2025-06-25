@@ -3,11 +3,12 @@
 @import url('https://fonts.cdnfonts.com/css/reklame-script');
 
 body {
-    font-family: 'Arial', sans-serif;
+    font-family: 'Roboto', sans-serif;
     background-color: #F6F4F0;
     color: #333333;
     margin: 0;
     padding: 0;
+    font-family: 'Roboto', sans-serif;
 }
 
 #carre-rouge  {
@@ -15,20 +16,23 @@ body {
     height: 50px;
     width: 229px;
     left: 120px;
-    bottom: 30px;
     border-radius: 5px;
 }
 
 
 .SPN {
-    position: absolute;
-    color: #F6F4F0;
-    z-index: 10;
+    position: relative;
+    display: flex;
+    justify-content: start;
+    color: white;
     font-family: 'Reklame Script Regular DEMO', sans-serif;
     font-size: 35px;
-    top: -20px;
     left: 130px;
+    z-index: 10;
+    margin-top: -55px;
 }
+
+
 
 .logo {
     position: relative;
@@ -39,19 +43,24 @@ body {
 
 
 
+
 .nav-bar {
-    position: absolute;
+    position: relative;
     left: 73%;
-    top: 0px;
+    top: -68px;
     display: flex;
     gap: 0; /* Remove gap between items */
     background-color: white;
     height: 50px; /* Set fixed height */
-    width: 452px; /* Set fixed width */
+    width: 452px;
     border-radius: 10px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    z-index: 999;
     overflow: hidden; /* Ensure rounded corners also apply to children */
+}
+
+.nav-item:hover{
+    background-color: rgb(190, 177, 177);
+    color: #d32f2f;
 }
 
 .nav-item {

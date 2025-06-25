@@ -8,6 +8,7 @@ body, html {
   padding: 0;
   overflow-x: hidden;
   background-color: #F6F4F0;
+  font-family: 'Roboto', sans-serif;
 }
 
 
@@ -19,7 +20,7 @@ header {
 }
 
 #carre-rouge  {
-    position: absolute;
+    position: relative;
     top: -5px;
     height: 55px;
     width: 229px;
@@ -30,13 +31,14 @@ header {
 
 .SPN {
     position: relative;
+    display: flex;
+    justify-content: start;
     color: #F6F4F0;
     font-family: 'Reklame Script Regular DEMO', sans-serif;
     font-size: 35px;
-    top: -20px;
-    left: 130px;
+    bottom: 50px;
+    margin-left: 130px;
     z-index: 10;
-    margin-top: -50px;
 }
 
 
@@ -51,9 +53,9 @@ header {
 
 
 .nav-bar {
-    position: absolute;
+    position: relative;
     left: 73%;
-    top: 0px;
+    top: -105px;
     display: flex;
     gap: 0; /* Remove gap between items */
     background-color: white;
@@ -62,6 +64,12 @@ header {
     border-radius: 10px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     overflow: hidden; /* Ensure rounded corners also apply to children */
+    z-index: 10;
+}
+
+.nav-item:hover{
+    background-color: rgb(190, 177, 177);
+    color: #d32f2f;
 }
 
 .nav-item {
@@ -250,9 +258,11 @@ footer {
 
 
 .jeux_conteneur {
+    position: relative;
     max-width: 900px;
     margin: 50px auto;
     padding: 20px;
+    bottom: 90px;
     background-color: #fff; /* Fond blanc */
     border-radius: 15px; /* Coins arrondis */
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05); /* Ombre légère pour un effet de profondeur */

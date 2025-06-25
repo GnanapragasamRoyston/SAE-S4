@@ -108,8 +108,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['jeu_id'])) {
 $conn->close();
 ?>
 
-
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -118,16 +116,29 @@ $conn->close();
     <link href="../Content/CSS/game_details.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4Q6Gf2aSP4eDXB8Miphtr37CMZZQ5oXLH2yaXMJ2w8e2ZtHTl7GptT4jmndRuHDT" crossorigin="anonymous">    
 </head>
-<body>
+<body style="background-color: #F6F4F0">
     <div class='logo'>
         <a href="../Views/accueil.php"><img id='carre-rouge' src='../Content/IMG/carre-rouge.jpg' alt='rouge'></a>
-        <a href="../Views/accueil.php" style="text-decoration:none;"><h1 class='SPN pt-1'>Sorbonne Paris Nord</h1></a>
+        <a href="../Views/accueil.php" style="text-decoration:none;" class="w-25"><h1 class='SPN pt-1'>Sorbonne Paris Nord</h1></a>
     </div>
 
     <nav class="nav-bar">
-    <a href="../Views/accueil.php" class="nav-item">Accueil</a>
-    <a href="../Views/search_games.php" class="nav-item active">Jeux</a>
-    <a href="<?php echo $compte_url; ?>" class="nav-item">Compte</a> 
+        <a href="../Views/accueil.php" class="nav-item" style="z-index:10;">Accueil</a>
+        <a id="jeux-link" href="../Views/search_games.php" class="nav-item active">Jeux</a>
+        <?php
+        if (isset($_SESSION['user_id']) && isset($_SESSION['role'])) {
+            $role = $_SESSION['role'];
+            if ($role === 'Lecteur') {
+                echo '<a href="../Views/dashboard_lecteur.php" class="nav-item">Compte</a>';
+            } elseif ($role === 'Gestionnaire') {
+                echo '<a href="../Views/dashboard_gestionnaire.php" class="nav-item">Compte</a>';
+            } elseif ($role === 'Admin') {
+                echo '<a href="../Views/dashboard_admin.php" class="nav-item">Compte</a>';
+            }
+        } else {
+            echo '<a href="../Views/connexion.php" class="nav-item">Compte</a>';
+        }
+        ?>
     </nav>
 
     <br><br>
@@ -144,17 +155,9 @@ $conn->close();
         <?php endif; ?>
 
         <br>
-        <p><strong>Auteur :</strong> 
-        <?php $auteur = htmlspecialchars($game['auteur_nom'] ?? 'Inconnu'); 
-        echo rtrim($auteur, ' /'); // Supprime le '/' et les espaces en fin de chaîne
-        ?>
-        </p>
-        <p><strong>Éditeur :</strong> 
-        <?php 
-        $editeur = htmlspecialchars($game['editeur_nom'] ?? 'Non spécifié');
-        echo rtrim($editeur, ' /'); // Supprime le '/' et les espaces en fin de chaîne
-        ?>
-    </p>
+
+        <p class="mt-2"><strong>Auteur :</strong> <?php echo htmlspecialchars($game['auteur_nom'] ?? 'Inconnu'); ?></p>
+        <p><strong>Éditeur :</strong> <?php echo htmlspecialchars($game['editeur_nom'] ?? 'Non spécifié'); ?></p>
         <p><strong>Version :</strong> <?php echo htmlspecialchars($game['version']); ?></p>
         <p><strong>Nombre de joueurs :</strong> <?php echo htmlspecialchars($game['nombre_de_joueurs']); ?></p>
         <p><strong>Date de parution :</strong>
