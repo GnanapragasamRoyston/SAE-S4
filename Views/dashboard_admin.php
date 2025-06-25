@@ -1,203 +1,175 @@
 <?php
-    session_start();
+session_start();
 
-    // Vérifier si l'utilisateur est connecté
-    if (!isset($_SESSION['user_id'])) {
-        header("Location: connexion.php"); // Redirige vers la page de connexion si l'utilisateur n'est pas connecté
-        exit;
+// Vérifier si l'utilisateur est connecté
+if (!isset($_SESSION['user_id'])) {
+    header("Location: connexion.php");
+    exit;
+}
+
+// Vérification et récupération des valeurs de nom et prénom
+$prenom = isset($_SESSION['prenom']) ? $_SESSION['prenom'] : 'search';
+$nom = isset($_SESSION['nom']) ? $_SESSION['nom'] : null;
+
+// Connexion à la base de données
+$host = 'localhost';
+$username = 'root';
+$password = '';
+$dbname = 'database_jeux';
+
+$conn = new mysqli($host, $username, $password, $dbname);
+
+if ($conn->connect_error) {
+    die("Connexion échouée : " . $conn->connect_error);
+}
+
+// Variables de recherche
+$recherche_titre = '';
+$recherche_id = '';
+$jeux_trouves = [];
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (isset($_POST['recherche_titre']) && !empty($_POST['recherche_titre'])) {
+        $recherche_titre = '%' . $_POST['recherche_titre'] . '%';
     }
 
-    // Vérification et récupération des valeurs de nom et prénom
-    $prenom = isset($_SESSION['prenom']) ? $_SESSION['prenom'] : 'Invité';
-    $nom = isset($_SESSION['nom']) ? $_SESSION['nom'] : '';
-
-    // Connexion à la base de données
-    $host = 'localhost';
-    $username = 'root';
-    $password = '';
-    $dbname = 'database_jeux';
-
-    $conn = new mysqli($host, $username, $password, $dbname);
-
-    if ($conn->connect_error) {
-        die("Connexion échouée : " . $conn->connect_error);
+    if (isset($_POST['recherche_id']) && is_numeric($_POST['recherche_id']) && $_POST['recherche_id'] > 0) {
+        $recherche_id = $_POST['recherche_id'];
     }
 
-    // Variables de recherche
-    $recherche_titre = '';
-    $recherche_id = '';
-    $jeux_trouves = [];
+    if ($recherche_titre !== '' || $recherche_id !== '') {
+        $sql_jeux = "SELECT j.jeu_id, j.titre, j.date_parution_debut, j.date_parution_fin, j.version, j.nombre_de_joueurs, j.age_indique, b.boite_id, b.etat, l.localisation_nom, c.nom AS collection_nom
+                    FROM Jeux j
+                    LEFT JOIN Boite b ON j.jeu_id = b.jeu_id
+                    LEFT JOIN Localisation l ON b.localisation_id = l.localisation_id
+                    LEFT JOIN Collection c ON b.collection_id = c.collection_id";
 
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        if (isset($_POST['recherche_titre']) && !empty($_POST['recherche_titre'])) {
-            $recherche_titre = '%' . $_POST['recherche_titre'] . '%';
+        $conditions = [];
+        $params = [];
+
+        if ($recherche_titre) {
+            $conditions[] = "j.titre LIKE ?";
+            $params[] = $recherche_titre;
         }
 
-        if (isset($_POST['recherche_id']) && is_numeric($_POST['recherche_id']) && $_POST['recherche_id'] > 0) {
-            $recherche_id = $_POST['recherche_id'];
+        if ($recherche_id) {
+            $conditions[] = "j.jeu_id = ?";
+            $params[] = $recherche_id;
         }
 
-        if ($recherche_titre !== '' || $recherche_id !== '') {
-            $sql_jeux = "SELECT j.jeu_id, j.titre, j.date_parution_debut, j.date_parution_fin, j.version, j.nombre_de_joueurs, j.age_indique, b.boite_id, b.etat, l.localisation_nom, c.nom AS collection_nom
-                        FROM Jeux j
-                        LEFT JOIN Boite b ON j.jeu_id = b.jeu_id
-                        LEFT JOIN Localisation l ON b.localisation_id = l.localisation_id
-                        LEFT JOIN Collection c ON b.collection_id = c.collection_id";
-
-            $conditions = [];
-            $params = [];
-
-            if ($recherche_titre) {
-                $conditions[] = "j.titre LIKE ?";
-                $params[] = $recherche_titre;
-            }
-
-            if ($recherche_id) {
-                $conditions[] = "j.jeu_id = ?";
-                $params[] = $recherche_id;
-            }
-
-            if (count($conditions) > 0) {
-                $sql_jeux .= " WHERE " . implode(" AND ", $conditions);
-            }
-
-            $sql_jeux .= " ORDER BY j.titre";
-            $stmt = $conn->prepare($sql_jeux);
-
-            if (count($params) > 0) {
-                $stmt->bind_param(str_repeat('s', count($params)), ...$params);
-            }
-
-            $stmt->execute();
-            $result = $stmt->get_result();
-            $jeux_trouves = $result->fetch_all(MYSQLI_ASSOC);
-            $stmt->close();
-        }
-    }
-
-
-    // Récupérer les détails de tous les utilisateurs
-    $sql = "SELECT p.*, pr.role_id, r.role_nom
-            FROM personne p
-            LEFT JOIN personne_role pr ON p.personne_id = pr.personne_id
-            LEFT JOIN role r ON pr.role_id = r.role_id";
-    $result = $conn->query($sql);
-
-    // Récupérer tous les rôles
-    $sql_roles = "SELECT * FROM `role`";
-    $result_roles = $conn->query($sql_roles);
-    $roles = $result_roles->fetch_all(MYSQLI_ASSOC);
-
-    // Initialiser un tableau pour les rôles et utilisateurs
-    $users_by_role = [];
-
-    // Récupérer les utilisateurs et organiser par rôle
-    while ($user = $result->fetch_assoc()) {
-        $role_name = strtolower($user['role_nom']); // On prend en compte le nom du rôle en minuscules
-        if (!isset($users_by_role[$role_name])) {
-            $users_by_role[$role_name] = []; // Créer une entrée vide pour chaque rôle
-        }
-        $users_by_role[$role_name][] = $user; // Ajouter l'utilisateur au rôle spécifique
-    }
-
-    // Récupérer les jeux empruntés
-    $sql_jeux = "SELECT p.pret_id, j.titre, j.date_parution_debut, j.age_indique, p.date_pret, p.date_retour, per.nom, per.prenom
-                FROM Pret p
-                JOIN Boite b ON p.boite_id = b.boite_id
-                JOIN Jeux j ON b.jeu_id = j.jeu_id
-                JOIN Personne per ON p.personne_id = per.personne_id";
-    $result_jeux = $conn->query($sql_jeux);
-    $jeux_empruntes = $result_jeux->fetch_all(MYSQLI_ASSOC);
-
-    // Fermer la connexion à la base de données
-    $conn->close();
-
-    // Traitement de la modification de rôle
-    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['user_id']) && isset($_POST['role_id'])) {
-        $user_id = $_POST['user_id'];
-        $role_id = $_POST['role_id'];
-
-        // Reconnexion à la base de données pour la mise à jour
-        $conn = new mysqli($host, $username, $password, $dbname);
-        
-        if ($conn->connect_error) {
-            die("Connexion échouée : " . $conn->connect_error);
+        if (count($conditions) > 0) {
+            $sql_jeux .= " WHERE " . implode(" AND ", $conditions);
         }
 
-        // Mettre à jour le rôle de l'utilisateur dans la base de données
-        $sql_update = "UPDATE personne_role SET role_id = ? WHERE personne_id = ?";
-        $stmt = $conn->prepare($sql_update);
+        $sql_jeux .= " ORDER BY j.titre";
+        $stmt = $conn->prepare($sql_jeux);
 
-        if ($stmt === false) {
-            die("Erreur lors de la préparation de la requête : " . $conn->error);
+        if (count($params) > 0) {
+            $stmt->bind_param(str_repeat('s', count($params)), ...$params);
         }
 
-        $stmt->bind_param('ii', $role_id, $user_id);  // 'ii' signifie deux entiers
-        $result = $stmt->execute();
-
-        // Vérifier si la mise à jour a réussi
-        if ($result) {
-            $_SESSION['message'] = "Le rôle a été mis à jour avec succès.";
-        } else {
-            $_SESSION['message'] = "Une erreur s'est produite lors de la mise à jour du rôle.";
-        }
-
-        // Fermer la connexion et rediriger vers le tableau de bord
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $jeux_trouves = $result->fetch_all(MYSQLI_ASSOC);
         $stmt->close();
-        $conn->close();
+    }
+}
 
-        header("Location: dashboard_admin.php"); // Redirection vers le tableau de bord
-        exit;
+// Récupérer les détails de tous les utilisateurs
+$sql = "SELECT p.*, pr.role_id, r.role_nom
+        FROM personne p
+        LEFT JOIN personne_role pr ON p.personne_id = pr.personne_id
+        LEFT JOIN role r ON pr.role_id = r.role_id";
+$result = $conn->query($sql);
+
+// Récupérer tous les rôles
+$sql_roles = "SELECT * FROM `role`";
+$result_roles = $conn->query($sql_roles);
+$roles = $result_roles->fetch_all(MYSQLI_ASSOC);
+
+// Initialiser un tableau pour les rôles et utilisateurs
+$users_by_role = [];
+
+while ($user = $result->fetch_assoc()) {
+    $role_name = strtolower($user['role_nom']);
+    if (!isset($users_by_role[$role_name])) {
+        $users_by_role[$role_name] = [];
+    }
+    $users_by_role[$role_name][] = $user;
+}
+
+// Récupérer les jeux empruntés
+$sql_jeux = "SELECT p.pret_id, j.titre, j.date_parution_debut, j.age_indique, p.date_pret, p.date_retour, per.nom, per.prenom
+            FROM Pret p
+            JOIN Boite b ON p.boite_id = b.boite_id
+            JOIN Jeux j ON b.jeu_id = j.jeu_id
+            JOIN Personne per ON p.personne_id = per.personne_id";
+$result_jeux = $conn->query($sql_jeux);
+$jeux_empruntes = $result_jeux->fetch_all(MYSQLI_ASSOC);
+
+// Traitement de la modification de rôle
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['user_id']) && isset($_POST['role_id'])) {
+    $user_id = $_POST['user_id'];
+    $role_id = $_POST['role_id'];
+
+    $sql_update = "UPDATE personne_role SET role_id = ? WHERE personne_id = ?";
+    $stmt = $conn->prepare($sql_update);
+
+    if ($stmt === false) {
+        die("Erreur lors de la préparation de la requête : " . $conn->error);
     }
 
-    // Traitement de la suppression de jeu
-    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['pret_id'])) {
-        $pret_id = $_POST['pret_id'];
+    $stmt->bind_param('ii', $role_id, $user_id);
+    $result = $stmt->execute();
 
-        // Reconnexion à la base de données pour la suppression
-        $conn = new mysqli($host, $username, $password, $dbname);
-
-        if ($conn->connect_error) {
-            die("Connexion échouée : " . $conn->connect_error);
-        }
-
-        // Supprimer le jeu emprunté
-        $sql_delete = "DELETE FROM Pret WHERE pret_id = ?";
-        $stmt_delete = $conn->prepare($sql_delete);
-        $stmt_delete->bind_param('i', $pret_id);
-
-        if ($stmt_delete->execute()) {
-            $_SESSION['message'] = "Le jeu a été supprimé avec succès.";
-        } else {
-            $_SESSION['message'] = "Une erreur s'est produite lors de la suppression du jeu.";
-        }
-
-        $stmt_delete->close();
-        $conn->close();
-
-        header("Location: dashboard_admin.php"); // Redirection vers le tableau de bord
-        exit;
+    if ($result) {
+        $_SESSION['message'] = "Le rôle a été mis à jour avec succès.";
+    } else {
+        $_SESSION['message'] = "Une erreur s'est produite lors de la mise à jour du rôle.";
     }
 
-    // Supprimer un jeu
-    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_game'])) {
-        $jeu_id = $_POST['jeu_id'];
+    $stmt->close();
+    header("Location: dashboard_admin.php");
+    exit;
+}
 
-        $sql_delete = "DELETE FROM Jeux WHERE jeu_id = ?";
-        $stmt_delete = $conn->prepare($sql_delete);
-        $stmt_delete->bind_param('i', $jeu_id);
+// Traitement de la suppression de jeu
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['pret_id'])) {
+    $pret_id = $_POST['pret_id'];
 
-        if ($stmt_delete->execute()) {
-            $_SESSION['message'] = "Jeu supprimé avec succès.";
-        } else {
-            $_SESSION['message'] = "Erreur lors de la suppression du jeu.";
-        }
-        $stmt_delete->close();
-        header("Location: dashboard_admin.php");
-        exit;
+    $sql_delete = "DELETE FROM Pret WHERE pret_id = ?";
+    $stmt_delete = $conn->prepare($sql_delete);
+    $stmt_delete->bind_param('i', $pret_id);
+
+    if ($stmt_delete->execute()) {
+        $_SESSION['message'] = "Le jeu a été supprimé avec succès.";
+    } else {
+        $_SESSION['message'] = "Une erreur s'est produite lors de la suppression du jeu.";
     }
 
-    ?>
+    $stmt_delete->close();
+    header("Location: dashboard_admin.php");
+    exit;
+}
+
+// Supprimer un jeu
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_game'])) {
+    $jeu_id = $_POST['jeu_id'];
+
+    $sql_delete = "DELETE FROM Jeux WHERE jeu_id = ?";
+    $stmt_delete = $conn->prepare($sql_delete);
+    $stmt_delete->bind_param('i', $jeu_id);
+
+    if ($stmt_delete->execute()) {
+        $_SESSION['message'] = "Jeu supprimé avec succès.";
+    } else {
+        $_SESSION['message'] = "Erreur lors de la suppression du jeu.";
+    }
+    $stmt_delete->close();
+    header("Location: dashboard_admin.php");
+    exit;
+}
+?>
 
     <!DOCTYPE html>
     <html lang="fr">
@@ -208,6 +180,7 @@
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4Q6Gf2aSP4eDXB8Miphtr37CMZZQ5oXLH2yaXMJ2w8e2ZtHTl7GptT4jmndRuHDT" crossorigin="anonymous">
         <link rel="stylesheet" href="../Content/CSS/dashboard_style.css">
     </head>
     <body>
@@ -476,7 +449,7 @@
                             <td><?= htmlspecialchars($jeu['localisation_nom']) ?></td>
                             <td>
                             <a href="../Views/modifier_jeu.php?jeu_id=<?= $jeu['jeu_id'] ?>&source=admin">
-                                <button type="button">Modifier</button>
+                                <button class="btn btn-danger gap-2" type="button">Modifier</button>
                             </a>
                             <form method="POST" action="../Views/dashboard_admin.php" onsubmit="return confirm('Confirmer la suppression de ce jeu ?');">
                                 <input type="hidden" name="delete_game" value="1">
@@ -531,17 +504,16 @@
                 </table>
                 <br>
 
-                <a href="download_logs.php" class="btn-download">
-                <button style="padding: 10px 20px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">
-                Télécharger les logs
-                </button></a>
+                <a class="btn btn-outline-info d-flex justify-content-center w-25 mx-auto" href="download_logs.php">
+                    Télécharger les logs
+                </a>
 
             <?php else: ?>
                 <p>Aucun jeu emprunté pour l'instant.</p>
             <?php endif; ?>
             <br>
             <br>
-            <a href='../Views/logout.php'>Déconnexion</a>
+            <a href='../Views/logout.php' class="btn btn-outline-danger d-flex justify-content-center">Déconnexion</a>
         </div>
     </body>
     </html>

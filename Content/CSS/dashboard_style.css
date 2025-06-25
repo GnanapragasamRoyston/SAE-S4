@@ -383,3 +383,35 @@ h2 {
 h2, h3 {
     font-weight: bold;
 }
+
+.jeux-emprunts {
+    max-width: 1100px;
+    margin: 40px auto;
+    padding: 20px;
+    background-color: #ffffff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Assure une bonne largeur du tableau */
+.jeux-emprunts .tableau-jeux {
+    width: 98%;
+    max-width: 1400px;
+    margin-top: 30px;
+}
+
+/* Évite que le tableau déborde */
+.jeux-emprunts table th,
+.jeux-emprunts table td {
+    font-size: 1.05em;
+    padding: 14px;
+}
+
+.jeux-emprunts h2 {
+    color: #d32f2f;
+    font-size: 24px;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 20px;
+}

@@ -78,12 +78,24 @@ $stmtAuteur = $conn->prepare("
 
 
 
-    $stmtCategorie= $conn->prepare("
-    INSERT INTO categorie (nom)
-    VALUES (?)");
+    // Vérifier si la catégorie existe déjà
+$stmtCheckCat = $conn->prepare("SELECT categorie_id FROM categorie WHERE nom = ?");
+$stmtCheckCat->bind_param("s", $categorie_nom);
+$stmtCheckCat->execute();
+$result = $stmtCheckCat->get_result();
+
+if ($result->num_rows > 0) {
+    // Elle existe → récupérer son ID
+    $row = $result->fetch_assoc();
+    $categorieId = $row['categorie_id'];
+} else {
+    // Elle n'existe pas → l'insérer
+    $stmtCategorie= $conn->prepare("INSERT INTO categorie (nom) VALUES (?)");
     $stmtCategorie->bind_param("s",$categorie_nom);
     $stmtCategorie->execute();
     $categorieId = $stmtCategorie->insert_id;
+}
+
 
     $stmt = $conn->prepare("INSERT INTO jeucategorie (jeu_id, categorie_id) VALUES (?, ?)");
     $stmt->bind_param("ii", $jeu_id, $categorieId);
@@ -102,7 +114,14 @@ $stmt->execute();
 // Fermer la connexion à la base de données
 $conn->close();
 
-// Rediriger vers le dashboard une fois le jeu ajouté
-header("Location: dashboard_gestionnaire.php");
+
+// Redirection selon l'origine du formulaire
+$source = $_POST['source'] ?? '';
+
+if ($source === 'admin') {
+    header("Location: dashboard_admin.php");
+} else {
+    header("Location: dashboard_gestionnaire.php");
+}
 exit;
 ?>

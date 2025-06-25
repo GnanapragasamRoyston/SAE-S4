@@ -113,7 +113,7 @@ $conn->close();
             <p>Vous n'avez emprunté aucun jeu pour l'instant.</p>
         <?php endif; ?>
 
-        <a href='../Views/logout.php'>Déconnexion</a>
+        <a href='../Views/logout.php' class="btn btn-outline-danger d-flex justify-content-center">Déconnexion</a>
     </div>
 </body>
 </html>

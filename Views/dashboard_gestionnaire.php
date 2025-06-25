@@ -136,7 +136,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_game'])) {
     <div class="container">
         <div class="header">
             <h1>Bienvenue, <?php echo htmlspecialchars($prenom) . " " . htmlspecialchars($nom); ?> !</h1>
-            <a href='logout.php' class="btn-deconnexion">Déconnexion</a>
+            <a href='../Views/logout.php' class="btn btn-outline-danger d-flex justify-content-center">Déconnexion</a>
         </div>
 
         <br><br>
