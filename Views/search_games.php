@@ -122,24 +122,25 @@ $conn->close();
         <a href="../Views/accueil.php"><h1 class='SPN'>Sorbonne Paris Nord</h1></a>
     </div>
 
-<nav class="nav-bar">
-    <a href="../Views/accueil.php" class="nav-item">Accueil</a>
-    <a href="../Views/search_games.php" class="nav-item active">Jeux</a>
-    <?php
-    if (isset($_SESSION['user_id']) && isset($_SESSION['role'])) {
-        $role = $_SESSION['role'];
-        if ($role === 'Lecteur') {
-            echo '<a href="../Views/dashboard_lecteur.php" class="nav-item">Compte</a>';
-        } elseif ($role === 'Gestionnaire') {
-            echo '<a href="../Views/dashboard_gestionnaire.php" class="nav-item">Compte</a>';
-        } elseif ($role === 'Admin') {
-            echo '<a href="../Views/dashboard_admin.php" class="nav-item">Compte</a>';
+    <nav class="nav-bar">
+        <a href="../Views/accueil.php" class="nav-item w-25">Accueil</a>
+        <a href="../Views/search_games.php" class="nav-item active w-25">Jeux</a>
+        <?php
+        if (isset($_SESSION['user_id']) && isset($_SESSION['role'])) {
+            $role = $_SESSION['role'];
+            if ($role === 'Lecteur') {
+                echo '<a href="../Views/dashboard_lecteur.php" class="nav-item">Compte</a>';
+            } elseif ($role === 'Gestionnaire') {
+                echo '<a href="../Views/dashboard_gestionnaire.php" class="nav-item">Compte</a>';
+            } elseif ($role === 'Admin') {
+                echo '<a href="../Views/dashboard_admin.php" class="nav-item">Compte</a>';
+            }
+        } else {
+            echo '<a href="../Views/connexion.php" class="nav-item">Compte</a>';
         }
-    } else {
-        echo '<a href="../Views/connexion.php" class="nav-item">Compte</a>';
-    }
-    ?>
-</nav>
+        ?>
+    </nav>
+
     <div class="conteneur">
         <div class="section-recherche">
         <form method="GET" action="search_games.php">

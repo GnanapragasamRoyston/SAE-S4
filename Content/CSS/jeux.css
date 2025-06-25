@@ -7,6 +7,7 @@ body, html {
   padding: 0;
   overflow-x: hidden;
   background-color: #F6F4F0;
+  font-family: 'Roboto', sans-serif;
 }
 
 
@@ -47,9 +48,9 @@ header {
 
 
 .nav-bar {
-    position: absolute;
+    position: relative;
     left: 73%;
-    top: 0px;
+    top: -75px;
     display: flex;
     gap: 0; /* Remove gap between items */
     background-color: white;
@@ -58,6 +59,12 @@ header {
     border-radius: 10px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     overflow: hidden; /* Ensure rounded corners also apply to children */
+    z-index: 10;
+}
+
+.nav-item:hover{
+    background-color: rgb(190, 177, 177);
+    color: #d32f2f;
 }
 
 .nav-item {
@@ -81,13 +88,13 @@ header {
 
 .nav-item:hover{
     background-color: rgb(190, 177, 177);
+    color: red;
 }
 
 
 .conteneur {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 2rem;
     text-align: center;
 }
 
@@ -97,7 +104,8 @@ h1 {
 }
 
 .section-recherche {
-    margin-bottom: 2rem;
+    position: relative;
+    bottom: 4em;
 }
 
 .section-recherche input[type="search"] {

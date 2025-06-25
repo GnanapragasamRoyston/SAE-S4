@@ -108,14 +108,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_game'])) {
 <body>
 
 <div class='logo'>
-        <a href="../Views/accueil_gestionnaire.php"><img id='carre-rouge' src='../Content/IMG/carre-rouge.jpg' alt='rouge'></a>
-        <a href="../Views/accueil_gestionnaire.php"><h1 class='SPN'>Sorbonne Paris Nord</h1></a>
+        <a href="../Views/accueil.php"><img id='carre-rouge' src='../Content/IMG/carre-rouge.jpg' alt='rouge'></a>
+        <a href="../Views/accueil.php"><h1 class='SPN'>Sorbonne Paris Nord</h1></a>
     </div>
 
     <nav class="nav-bar">
-    <a href="../Views/accueil_gestionnaire.php" class="nav-item">accueil</a>
-    <a href="../Views/search_games_gestionnaire.php" class="nav-item">Jeux</a>
-    <a href="../Views/dashboard_gestionnaire.php" class="nav-item active">Compte</a>
+        <a href="../Views/accueil.php" class="nav-item">Accueil</a>
+        <a href="../Views/search_games.php" class="nav-item">Jeux</a>
+        <?php
+        if (isset($_SESSION['user_id']) && isset($_SESSION['role'])) {
+            $role = $_SESSION['role'];
+            if ($role === 'Lecteur') {
+                echo '<a href="../Views/dashboard_lecteur.php" class="nav-item">Compte</a>';
+            } elseif ($role === 'Gestionnaire') {
+                echo '<a href="../Views/dashboard_gestionnaire.php" class="nav-item">Compte</a>';
+            } elseif ($role === 'Admin') {
+                echo '<a href="../Views/dashboard_admin.php" class="nav-item">Compte</a>';
+            }
+        } else {
+            echo '<a href="../Views/connexion.php" class="nav-item active">Compte</a>';
+        }
+        ?>
     </nav>
 
     <br>

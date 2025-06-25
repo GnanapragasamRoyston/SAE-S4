@@ -7,6 +7,7 @@ body, html {
   padding: 0;
   overflow-x: hidden;
   background-color: #F6F4F0;
+  font-family: 'Roboto', sans-serif;
 }
 
 
@@ -39,9 +40,9 @@ body, html {
 }
 
 .nav-bar {
-    position: absolute;
+    position: relative;
     left: 73%;
-    top: 0px;
+    top: -55px;
     display: flex;
     background-color: white;
     height: 50px; 
@@ -192,11 +193,17 @@ body, html {
 }
 
 .card-body {
-    position: relative;
+    position: absolute;
     width: 35%;
     margin-left: 10%;
-    margin-top: -35%;
+    bottom: -35%;
     overflow: hidden;
+}
+
+.formulaire {
+    position: absolute;
+    width: 80%;
+    top: 140%;
 }
 
 .form-desc {
