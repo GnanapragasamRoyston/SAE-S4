@@ -83,22 +83,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 
     <nav class="nav-bar">
-        <a href="../Views/accueil.php" class="nav-item active">Accueil</a>
-        <a href="../Views/search_games.php" class="nav-item">Jeux</a>
-        <?php
-        if (isset($_SESSION['user_id']) && isset($_SESSION['role'])) {
-            $role = $_SESSION['role'];
-            if ($role === 'Lecteur') {
-                echo '<a href="../Views/dashboard_lecteur.php" class="nav-item">Compte</a>';
-            } elseif ($role === 'Gestionnaire') {
-                echo '<a href="../Views/dashboard_gestionnaire.php" class="nav-item">Compte</a>';
-            } elseif ($role === 'Admin') {
-                echo '<a href="../Views/dashboard_admin.php" class="nav-item">Compte</a>';
-            }
-        } else {
-            echo '<a href="../Views/connexion.php" class="nav-item">Compte</a>';
-        }
-        ?>
+    <a href="accueil.php" class="nav-item active">Accueil</a>
+    <a href="search_games.php" class="nav-item">Jeux</a>
+    <a href="connexion.php" class="nav-item">Compte</a>
     </nav>
 
     <div class='Search'>

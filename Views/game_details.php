@@ -108,6 +108,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['jeu_id'])) {
 $conn->close();
 ?>
 
+
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -123,22 +125,9 @@ $conn->close();
     </div>
 
     <nav class="nav-bar">
-        <a href="../Views/accueil.php" class="nav-item">Accueil</a>
-        <a id="jeux-link" href="../Views/search_games.php" class="nav-item active">Jeux</a>
-        <?php
-        if (isset($_SESSION['user_id']) && isset($_SESSION['role'])) {
-            $role = $_SESSION['role'];
-            if ($role === 'Lecteur') {
-                echo '<a href="../Views/dashboard_lecteur.php" class="nav-item">Compte</a>';
-            } elseif ($role === 'Gestionnaire') {
-                echo '<a href="../Views/dashboard_gestionnaire.php" class="nav-item">Compte</a>';
-            } elseif ($role === 'Admin') {
-                echo '<a href="../Views/dashboard_admin.php" class="nav-item">Compte</a>';
-            }
-        } else {
-            echo '<a href="../Views/connexion.php" class="nav-item">Compte</a>';
-        }
-        ?>
+    <a href="../Views/accueil.php" class="nav-item">Accueil</a>
+    <a href="../Views/search_games.php" class="nav-item active">Jeux</a>
+    <a href="<?php echo $compte_url; ?>" class="nav-item">Compte</a> 
     </nav>
 
     <br><br>
@@ -153,10 +142,19 @@ $conn->close();
             <img src="<?php echo htmlspecialchars($imageUrl); ?>" alt="Image du jeu <?php echo htmlspecialchars($game['titre']); ?>" style="max-height: 300px; border: 3px solid #333; border-radius: 8px;">
         </div>
         <?php endif; ?>
-        <br>
 
-        <p class="mt-2"><strong>Auteur :</strong> <?php echo htmlspecialchars($game['auteur_nom'] ?? 'Inconnu'); ?></p>
-        <p><strong>Éditeur :</strong> <?php echo htmlspecialchars($game['editeur_nom'] ?? 'Non spécifié'); ?></p>
+        <br>
+        <p><strong>Auteur :</strong> 
+        <?php $auteur = htmlspecialchars($game['auteur_nom'] ?? 'Inconnu'); 
+        echo rtrim($auteur, ' /'); // Supprime le '/' et les espaces en fin de chaîne
+        ?>
+        </p>
+        <p><strong>Éditeur :</strong> 
+        <?php 
+        $editeur = htmlspecialchars($game['editeur_nom'] ?? 'Non spécifié');
+        echo rtrim($editeur, ' /'); // Supprime le '/' et les espaces en fin de chaîne
+        ?>
+    </p>
         <p><strong>Version :</strong> <?php echo htmlspecialchars($game['version']); ?></p>
         <p><strong>Nombre de joueurs :</strong> <?php echo htmlspecialchars($game['nombre_de_joueurs']); ?></p>
         <p><strong>Date de parution :</strong>

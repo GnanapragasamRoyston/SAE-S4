@@ -57,15 +57,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 <body>
     <div class='logo'>
-        <br>
         <a href="../Views/accueil.php"><img id='carre-rouge' src='../Content/IMG/carre-rouge.jpg' alt='rouge'></a>
-        <a href="../Views/accueil.php"><h1 class='SPN'>Sorbonne Paris Nord</h1></a>
+        <a href="../Views/accueil.php" style="text-decoration:none;"><h1 class='SPN pt-1'>Sorbonne Paris Nord</h1></a>
     </div>
 
     <nav class="nav-bar">
-        <a href="../Views/accueil.php" class="nav-item">Accueil</a>
-        <a href="../Views/search_games.php" class="nav-item">Jeux</a>
-        <a href="../Views/connexion.php" class="nav-item active">Compte</a>
+    <a href="../Views/accueil.php" class="nav-item">Accueil</a>
+    <a href="../Views/search_games.php" class="nav-item">Jeux</a>
+    <?php
+    // Vérifier si l'utilisateur est connecté
+    if (isset($_SESSION['user_id']) && isset($_SESSION['role'])) {
+        $role = $_SESSION['role'];
+        if ($role === 'Lecteur') {
+            echo '<a href="../Views/dashboard_lecteur.php" class="nav-item active">Compte</a>';
+        } elseif ($role === 'Gestionnaire') {
+            echo '<a href="../Views/dashboard_gestionnaire.php" class="nav-item active">Compte</a>';
+        } elseif ($role === 'Admin') {
+            echo '<a href="../Views/dashboard_admin.php" class="nav-item active">Compte</a>';
+        }
+    } else {
+        // Utilisateur non connecté : lien vers connexion.php
+        echo '<a href="../Views/connexion.php" class="nav-item active">Compte</a>';
+    }
+    ?>
     </nav>
 
     <div class="container">
