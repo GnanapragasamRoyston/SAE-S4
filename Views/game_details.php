@@ -11,43 +11,6 @@ if ($conn->connect_error) {
     die("Connexion échouée : " . $conn->connect_error);
 }
 
-// Vérification si l'utilisateur est connecté
-if (!isset($_SESSION['user_id'])) {
-    header('Location: connexion.php'); // Rediriger l'utilisateur s'il n'est pas connecté
-    exit;
-}
-
-$id_emprunteur = $_SESSION['user_id']; // Récupérer l'ID de l'emprunteur
-
-// Récupérer le rôle de l'utilisateur depuis la base de données
-$sql_role = "SELECT `role_nom` FROM `role` r WHERE r.role_id = ?";
-$stmt_role = $conn->prepare($sql_role);
-$stmt_role->bind_param("i", $id_emprunteur);
-$stmt_role->execute();
-$result_role = $stmt_role->get_result();
-$user = $result_role->fetch_assoc();
-
-if ($user && isset($user['role_nom'])) {
-    $_SESSION['role_nom'] = $user['role_nom']; // Stocker le rôle dans la session
-} else {
-    $_SESSION['role_nom'] = 'lecteur'; // Valeur par défaut si aucun rôle n'est trouvé
-}
-
-// Définir l'URL du tableau de bord en fonction du rôle
-switch ($_SESSION['role_nom']) {
-    case 'lecteur':
-        $compte_url = '../Views/dashboard_lecteur.php';
-        break;
-    case 'gestionnaire':
-        $compte_url = '../Views/dashboard_gestionnaire.php';
-        break;
-    case 'admin':
-        $compte_url = '../Views/dashboard_admin.php';
-        break;
-    default:
-        $compte_url = '../Views/dashboard_lecteur.php'; // URL par défaut
-}
-
 $jeu_id = isset($_GET['jeu_id']) ? (int)$_GET['jeu_id'] : 0;
 
 // Récupérer les informations du jeu
@@ -68,13 +31,59 @@ $stmt->execute();
 $result = $stmt->get_result();
 
 $game = $result->fetch_assoc();
-if ($game) {
-    $imageUrl = getBoardGameImage($game['titre']);
-    $gameName = $game['titre'];
-} else {
-    $imageUrl = null;
-    $gameName = "Jeu non trouvé";
+
+// Variable pour afficher le message de succès ou d'erreur
+$message = '';
+
+// Gestion de l'emprunt
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['jeu_id'])) {
+    // Vérifier si l'utilisateur est connecté avant de permettre l'emprunt
+    if (!isset($_SESSION['user_id'])) {
+        // Conserver l'URL actuelle pour la redirection après connexion
+        $redirect_url = urlencode($_SERVER['REQUEST_URI']);
+        header("Location: connexion.php?redirect=$redirect_url");
+        exit;
+    }
+
+    $id_emprunteur = $_SESSION['user_id']; // Récupérer l'ID de l'emprunteur
+    $jeu_id = (int)$_POST['jeu_id']; // Récupérer l'ID du jeu à emprunter
+    $boite_id = $game['boite_id']; // Récupérer l'ID de la boîte associée au jeu
+    $n_boite = $game['n_boite']; // Nombre de boîtes disponibles pour ce jeu
+
+    // Vérifier si le jeu a déjà été emprunté par l'utilisateur
+    $sql_verification = "SELECT * FROM Pret WHERE personne_id = ? AND boite_id = ?";
+    $stmt_verification = $conn->prepare($sql_verification);
+    $stmt_verification->bind_param("ii", $id_emprunteur, $boite_id);
+    $stmt_verification->execute();
+    $result_verification = $stmt_verification->get_result();
+
+    if ($result_verification->num_rows > 0) {
+        $message = "<div class='message-error'>Vous avez déjà emprunté ce jeu.</div>";
+    } else {
+        if ($n_boite > 0) {
+            $date_pret = date('Y/m/d');
+            $date_retour = date('Y/m/d', strtotime('+14 days'));
+
+            $sql_emprunt = "INSERT INTO Pret (personne_id, boite_id, date_pret, date_retour) VALUES (?, ?, NOW(), ?)";
+            $stmt_emprunt = $conn->prepare($sql_emprunt);
+            $stmt_emprunt->bind_param("iis", $id_emprunteur, $boite_id, $date_retour);
+            
+            if ($stmt_emprunt->execute()) {
+                $sql_update_boite = "UPDATE Boite SET n_boite = n_boite - 1 WHERE boite_id = ?";
+                $stmt_update_boite = $conn->prepare($sql_update_boite);
+                $stmt_update_boite->bind_param("i", $boite_id);
+                $stmt_update_boite->execute();
+
+                $message = "<div class='message-success'>Le jeu a été emprunté avec succès ! La date de retour est le $date_retour.</div>";
+            } else {
+                $message = "<div class='message-error'>Erreur lors de l'emprunt du jeu.</div>";
+            }
+        } else {
+            $message = "<div class='message-error'>Aucune boîte disponible pour ce jeu.</div>";
+        }
+    }
 }
+
 function getBoardGameImage($gameName) {
     $searchName = urlencode($gameName);
     $searchUrl = "https://boardgamegeek.com/xmlapi2/search?query={$searchName}";
@@ -98,66 +107,13 @@ function getBoardGameImage($gameName) {
     }
     return (string)$detailsXml->item->image;
 }
-
-
 $imageUrl = getBoardGameImage($game['titre']);
 
 $gameName=$game['titre'];
-
-// Variable pour afficher le message de succès ou d'erreur
-$message = '';
-
-// Vérifier si l'utilisateur a déjà emprunté ce jeu
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['jeu_id'])) {
-    $jeu_id = (int)$_POST['jeu_id']; // Récupérer l'ID du jeu à emprunter
-    $boite_id = $game['boite_id']; // Récupérer l'ID de la boîte associée au jeu
-    $n_boite = $game['n_boite']; // Nombre de boîtes disponibles pour ce jeu
-
-    // Vérifier si le jeu a déjà été emprunté par l'utilisateur
-    $sql_verification = "SELECT * FROM Pret WHERE personne_id = ? AND boite_id = ?";
-    $stmt_verification = $conn->prepare($sql_verification);
-    $stmt_verification->bind_param("ii", $id_emprunteur, $boite_id);
-    $stmt_verification->execute();
-    $result_verification = $stmt_verification->get_result();
-
-    if ($result_verification->num_rows > 0) {
-        // Le jeu a déjà été emprunté
-        $message = "<div class='message-error alert alert-secondary text-center'>Vous avez déjà emprunté ce jeu.</div>";
-    } else {
-        // Vérifier s'il reste des boîtes disponibles
-        if ($n_boite > 0) {
-            // Calculer la date de retour (14 jours après la date d'emprunt)
-            $date_pret = date('Y/m/d');
-            $date_retour = date('Y/m/d', strtotime('+14 days'));
-
-            // Insertion dans la table Pret (avec boite_id au lieu de jeu_id et ajout de la date_retour)
-            $sql_emprunt = "INSERT INTO Pret (personne_id, boite_id, date_pret, date_retour) VALUES (?, ?, NOW(), ?)";
-            $stmt_emprunt = $conn->prepare($sql_emprunt);
-
-            $stmt_emprunt->bind_param("iis", $id_emprunteur, $boite_id, $date_retour);
-            
-            if ($stmt_emprunt->execute()) {
-                // Réduire le nombre de boîtes disponibles de 1
-                $sql_update_boite = "UPDATE Boite SET n_boite = n_boite - 1 WHERE boite_id = ?";
-                $stmt_update_boite = $conn->prepare($sql_update_boite);
-                $stmt_update_boite->bind_param("i", $boite_id);
-                $stmt_update_boite->execute();
-
-                $message = "<div class='message-success alert alert-success text-center'>Le jeu a été emprunté avec succès ! La date de retour est <strong> le $date_retour.</strong></div>";
-            } else {
-                $message = "<div class='message-error alert alert-danger text-center'>Erreur lors de l'emprunt du jeu.</div>";
-            }
-        } else {
-            $message = "<div class='message-error alert alert-info text-black text-center'>Aucune boîte disponible pour ce jeu.</div>";
-        }
-    }
-}
-
 $conn->close();
 ?>
 
-
-
+<!-- Le reste du code HTML reste inchangé -->
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -165,7 +121,6 @@ $conn->close();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Détails du Jeu</title>
     <link href="../Content/CSS/game_details.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4Q6Gf2aSP4eDXB8Miphtr37CMZZQ5oXLH2yaXMJ2w8e2ZtHTl7GptT4jmndRuHDT" crossorigin="anonymous">    
 </head>
 <body>
     <div class='logo'>
@@ -176,15 +131,28 @@ $conn->close();
     <nav class="nav-bar">
     <a href="../Views/accueil.php" class="nav-item">Accueil</a>
     <a href="../Views/search_games.php" class="nav-item active">Jeux</a>
-    <a href="<?php echo $compte_url; ?>" class="nav-item">Compte</a> 
+    <?php
+    // Vérifier si l'utilisateur est connecté
+    if (isset($_SESSION['user_id']) && isset($_SESSION['role'])) {
+        $role = $_SESSION['role'];
+        if ($role === 'Lecteur') {
+            echo '<a href="../Views/dashboard_lecteur.php" class="nav-item">Compte</a>';
+        } elseif ($role === 'Gestionnaire') {
+            echo '<a href="../Views/dashboard_gestionnaire.php" class="nav-item">Compte</a>';
+        } elseif ($role === 'Admin') {
+            echo '<a href="../Views/dashboard_admin.php" class="nav-item">Compte</a>';
+        }
+    } else {
+        // Utilisateur non connecté : lien vers connexion.php
+        echo '<a href="../Views/connexion.php" class="nav-item active">Compte</a>';
+    }
+    ?>
     </nav>
-
 
     <br>
     <br>
 
     <div class="jeux_conteneur">
-        <!-- Affichage du message de succès ou d'erreur -->
         <?php if (!empty($message)) { echo $message; } ?>
 
         <h1><?php echo htmlspecialchars($game['titre']); ?></h1>
@@ -196,25 +164,22 @@ $conn->close();
         <br>
         <p><strong>Auteur :</strong> 
         <?php $auteur = htmlspecialchars($game['auteur_nom'] ?? 'Inconnu'); 
-        echo rtrim($auteur, ' /'); // Supprime le '/' et les espaces en fin de chaîne
-        ?>
+        echo rtrim($auteur, ' /'); ?>
         </p>
         <p><strong>Éditeur :</strong> 
         <?php 
         $editeur = htmlspecialchars($game['editeur_nom'] ?? 'Non spécifié');
-        echo rtrim($editeur, ' /'); // Supprime le '/' et les espaces en fin de chaîne
-        ?>
-    </p>
+        echo rtrim($editeur, ' /'); ?>
+        </p>
         <p><strong>Version :</strong> <?php echo htmlspecialchars($game['version']); ?></p>
         <p><strong>Nombre de joueurs :</strong> <?php echo htmlspecialchars($game['nombre_de_joueurs']); ?></p>
         <p><strong>Date de parution :</strong> 
         <?php 
         if ($game['date_parution_debut'] !== '0000') {
-        echo htmlspecialchars($game['date_parution_debut']);
+            echo htmlspecialchars($game['date_parution_debut']);
         } else {
             echo "Inconnu";
         }
-
         if ($game['date_parution_fin'] !== '0000') {
             echo ' - ' . htmlspecialchars($game['date_parution_fin']);
         }
